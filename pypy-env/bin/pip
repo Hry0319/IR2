@@ -1,0 +1,11 @@
+#!/nfs/inm_master/04/r04944047/pypy/pypy-env/bin/pypy
+
+# -*- coding: utf-8 -*-
+import re
+import sys
+
+from pip import main
+
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(main())
