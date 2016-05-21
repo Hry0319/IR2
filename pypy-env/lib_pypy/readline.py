@@ -1,1 +1,0 @@
-/opt/pypy/lib_pypy/readline.py
