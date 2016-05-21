@@ -17,22 +17,18 @@ except ImportError:
 
 
 def main():    
-    queryFile  = ""
-    pathNTCIR  = ""
-    pathModel  = ""
-    rankedList = ""
+    DataDir             = ""
+    OutPutFile          = "./output.txt"
+    Labeled_Data_Size   = ""
 
 ##
 ## terminal option parser
 ##
     parser = OptionParser()
-    parser.add_option("-r", action="store_true", dest="relevanceFeedback", help = "turn on relevance feedback")
-    parser.add_option("-i", action="store", type="string", dest="queryFile" , default = queryFile  , help = "input query file")
-    parser.add_option("-o", action="store", type="string", dest="NTCIR"     , default = pathNTCIR  , help = "dir of NTCIR docs")
-    parser.add_option("-m", action="store", type="string", dest="Model"     , default = pathModel  , help = "input model dir")
-    parser.add_option("-d", action="store", type="string", dest="rankedlist", default = rankedList , help = "output ranked list file")
+    parser.add_option("-i", action="store", dest="string", dest="DataDir"           , default = queryFile          , help = "")
+    parser.add_option("-o", action="store", type="string", dest="OutPutFile"        , default = OutPutFile         , help = "")
+    parser.add_option("-n", action="store", type="string", dest="Labeled_Data_Size" , default = Labeled_Data_Size  , help = "")
     (options, args) = parser.parse_args()
-
 
 
 
