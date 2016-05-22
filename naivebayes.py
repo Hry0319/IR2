@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#from __future__ import print_function  # Py 2.6+; In Py 3k not needed
 import os
 import io
 import sys
