@@ -17,7 +17,7 @@ except ImportError:
 
 
 def main():    
-    DataDir             = ""
+    DataDir             = "../20news"
     OutPutFile          = "./output.txt"
     Labeled_Data_Size   = ""
 
@@ -29,8 +29,6 @@ def main():
     parser.add_option("-o", action="store", type="string", dest="OutPutFile"        , default = OutPutFile         , help = "")
     parser.add_option("-n", action="store", type="string", dest="Labeled_Data_Size" , default = Labeled_Data_Size  , help = "")
     (options, args) = parser.parse_args()
-
-
 
 
 

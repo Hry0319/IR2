@@ -17,7 +17,7 @@ except ImportError:
 
 
 def main():    
-    DataDir             = ""
+    DataDir             = "../20news"
     OutPutFile          = "./output.txt"
     Labeled_Data_Size   = ""
 
@@ -36,6 +36,24 @@ def main():
 
 
 
+
+
+
+
+
+
+
+
+
+
 # main()
 if __name__ == '__main__':
     main()
+
+
+
+
+
+
+
+
