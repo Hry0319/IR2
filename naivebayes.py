@@ -14,7 +14,7 @@ except ImportError:
 #import textProc
 
 #io.DEFAULT_BUFFER_SIZE = 65535
-
+reGenDB = 1
 
 def main():    
     DataDir             = "../20news/"
@@ -37,24 +37,25 @@ def main():
     #print TrainingTopicList
 
 #debug clear sql db
-    Topic('test').reset()
+    if reGenDB :
+        Topic('test').reset()
 
-    for path in TrainingDirList:
-    # path = TrainingDirList[0]
-    # if path:
-        topic = 0
-        topic = Topic( path[ len(DataDir + 'Train'): ].strip('/') )
-        #topic.reset()
+        for path in TrainingDirList:
+        # path = TrainingDirList[0]
+        # if path:
+            topic = 0
+            topic = Topic( path[ len(DataDir + 'Train'): ].strip('/') )
+            #topic.reset()
 
-        filelist = []
-        getFileList(path, filelist)
+            filelist = []
+            getFileList(path, filelist)
 
-        topic.CalProbPerUnigram(filelist)
-        TopicList.append(topic)
+            topic.CalProbPerUnigram(filelist)
+            TopicList.append(topic)
 
-    # print TopicList[0].Label
-    # print TopicList[0].UnigramProb
-    # print TopicList[0].WordsCount
+        # print TopicList[0].Label
+        # print TopicList[0].UnigramProb
+        # print TopicList[0].WordsCount
 
 
 

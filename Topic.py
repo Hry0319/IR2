@@ -6,7 +6,13 @@ import gc
 import numpy as np
 import sqlite3
 
-commonWords = ('more','article','i','the','be','am','to','of','and','a','in','that','has','have','had','no','an','been','not','it','is','im','are','were','was','for','on','with','he','as','you','do','does','at','this','but','his','by','from','they','we','say','her','she','or','an','will','my','one','all','would','there','their','what','so','up','out','if','about','who','get','which','go','me','when','make','can','like','time','just','him','know','take','person','into','year','your','some','could','them','see','other','than','then','now','look','only','come','its','over','think','also','back','after','use','two','how','our','way','even','because','any','these','us')
+commonWords = ('more','article','i','the','be','am','to','of','and','a','in','that','has','have','had',
+	'no','an','been','not','it','is','im','are','were','was','for','on','with','he','as','you','do','does',
+	'at','this','but','his','by','from','they','we','say','her','she','or','an','will','my','one','all','would',
+	'there','their','what','so','up','out','if','about','who','get','which','go','me','when','make','can','like',
+	'time','just','him','know','take','person','into','year','your','some','could','them','see','other','than','then',
+	'now','look','only','come','its','over','think','also','back','after','use','two','how','our','way','even','because',
+	'any','these','us')
 
 
 '''
@@ -22,9 +28,9 @@ SQLite table
 '''
 
 class Topic:
-	Label	    = ""    # topic folder dir name 
-	UnigramProb = {}    # dictionary
-	WordsCount  = 0		# totally words count of Topic
+	Label	     = ""    # topic folder dir name 
+	UnigramCount = {}    # dictionary
+	WordsCount   = 0		# totally words count of Topic
 
 	def CalProbPerUnigram(self, FileList):
 		"""
@@ -43,30 +49,30 @@ class Topic:
 					if Unigram.isalpha() and Unigram not in commonWords:
 						self.WordsCount += 1
 
-						if not self.UnigramProb.has_key(Unigram):
-							self.UnigramProb[Unigram] = 1
+						if not self.UnigramCount.has_key(Unigram):
+							self.UnigramCount[Unigram] = 1
 						else:
-							self.UnigramProb[Unigram] += 1.0
+							self.UnigramCount[Unigram] += 1.0
 
-		#print self.UnigramProb
+		#print self.UnigramCount
 		
 		c = self.conn.cursor()
-		for unigram in self.UnigramProb:
-			#self.UnigramProb[unigram] /= self.WordsCount
-			sqlcmd = "INSERT INTO Topic VALUES (%s, %s, %f, %d)" % ('\''+self.Label+'\'', '\''+unigram+'\'', self.UnigramProb[unigram]/self.WordsCount, self.UnigramProb[unigram])
+		for unigram in self.UnigramCount:
+
+			prob = self.UnigramCount[unigram]/self.WordsCount
+			if prob != 0 :
+				prob = np.log(prob)
+			else:
+				prob = -9.2
+			sqlcmd = "INSERT INTO Topic VALUES (%s, %s, %f, %d)" % ('\''+self.Label+'\'', '\''+unigram+'\'', prob, self.UnigramCount[unigram])
 			#print sqlcmd
 			c.execute(sqlcmd)
 		c.close()
 		self.conn.commit()
 
-
-		print self.WordsCount
+		#print self.WordsCount
 
 		return
-
-
-
-
 
 	def __init__(self, label):
 		self.conn = sqlite3.connect('./Topic.db')
@@ -82,3 +88,4 @@ class Topic:
 		finally:
 			c.close()
 			self.conn.commit()
+
