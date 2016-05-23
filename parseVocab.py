@@ -81,6 +81,22 @@ parseVocab()
 # print dic['to']
 
 
+class Topic:
+
+	FileList    = []
+	UnigramProb = {}
+
+	def __init__(self):
+
+
+	def reset(self):
+
+
+
+
+
+
+
 
 
 
