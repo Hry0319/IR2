@@ -70,7 +70,7 @@ for dir in TopicList:
 # 3 parse vocab 
 parseVocab()
 
-# # 4 write to file 
+# 4 write to file 
 # f = open('./' + 'vocab.txt', 'a')
 # for vocab in dic:
 # 	# print vocab, dic[vocab]
@@ -79,19 +79,6 @@ parseVocab()
 # f.close()
 
 # print dic['to']
-
-
-class Topic:
-
-	FileList    = []
-	UnigramProb = {}
-
-	def __init__(self):
-
-
-	def reset(self):
-
-
 
 
 

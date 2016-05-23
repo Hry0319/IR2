@@ -41,11 +41,16 @@ class Topic:
 
 					if Unigram.isalpha() and Unigram not in commonWords:
 						self.WordsCount += 1
-						
-						if not UnigramProb.has_key(Unigram):
-							UnigramProb[Unigram] = 1
+
+						if not self.UnigramProb.has_key(Unigram):
+							self.UnigramProb[Unigram] = 1.0
 						else:
-							UnigramProb[Unigram] += 1
+							self.UnigramProb[Unigram] += 1.0
+
+		for unigram in self.UnigramProb:
+			self.UnigramProb[unigram] /= self.WordsCount 
+
+
 
 		return
 
@@ -53,8 +58,9 @@ class Topic:
 
 
 
-	def __init__(self):
-		self.conn = sqlite3.connect('./Topic.db')
+	def __init__(self, label):
+		#self.conn = sqlite3.connect('./Topic.db')
+		self.Label = label
 		return
 
 	def reset(self):
