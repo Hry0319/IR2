@@ -6,7 +6,7 @@ import gc
 import numpy as np
 import sqlite3
 
-commonWords = ('the','be','to','of','and','a','in','that','have','it','is','im','are','was','for','on','with','he','as','you','do','at','this','but','his','by','from','they','we','say','her','she','or','an','will','my','one','all','would','there','their','what','so','up','out','if','about','who','get','which','go','me','when','make','can','like','time','just','him','know','take','person','into','year','your','some','could','them','see','other','than','then','now','look','only','come','its','over','think','also','back','after','use','two','how','our','way','even','because','any','these','us')
+commonWords = ('more','article','i','the','be','am','to','of','and','a','in','that','has','have','had','no','an','been','not','it','is','im','are','were','was','for','on','with','he','as','you','do','does','at','this','but','his','by','from','they','we','say','her','she','or','an','will','my','one','all','would','there','their','what','so','up','out','if','about','who','get','which','go','me','when','make','can','like','time','just','him','know','take','person','into','year','your','some','could','them','see','other','than','then','now','look','only','come','its','over','think','also','back','after','use','two','how','our','way','even','because','any','these','us')
 
 
 '''
@@ -53,7 +53,6 @@ class Topic:
 		c = self.conn.cursor()
 		for unigram in self.UnigramProb:
 			#self.UnigramProb[unigram] /= self.WordsCount
-
 			sqlcmd = "INSERT INTO Topic VALUES (%s, %s, %f, %d)" % ('\''+self.Label+'\'', '\''+unigram+'\'', self.UnigramProb[unigram]/self.WordsCount, self.UnigramProb[unigram])
 			#print sqlcmd
 			c.execute(sqlcmd)
@@ -61,6 +60,7 @@ class Topic:
 		self.conn.commit()
 
 
+		print self.WordsCount
 
 		return
 
@@ -70,6 +70,7 @@ class Topic:
 
 	def __init__(self, label):
 		self.conn = sqlite3.connect('./Topic.db')
+
 		self.Label = label
 		return
 

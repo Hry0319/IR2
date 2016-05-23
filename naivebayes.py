@@ -32,9 +32,12 @@ def main():
 
     TopicList       = []
     TrainingDirList = []
-
+ 
     getDirList(DataDir + 'Train/', TrainingDirList)
     #print TrainingTopicList
+
+#debug clear sql db
+    Topic('test').reset()
 
     for path in TrainingDirList:
     # path = TrainingDirList[0]
@@ -71,19 +74,6 @@ def getFileList(path, FileList):
     for item in os.listdir(path):
         if not item.startswith('.') and os.path.isfile(os.path.join(path, item)):
             FileList.append(path + item)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # main()
