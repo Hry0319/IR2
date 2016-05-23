@@ -37,18 +37,22 @@ def main():
     #print TrainingTopicList
 
     for path in TrainingDirList:
+    # path = TrainingDirList[0]
+    # if path:
+        topic = 0
         topic = Topic( path[ len(DataDir + 'Train'): ].strip('/') )
-        #print topic.Label
+        #topic.reset()
+
         filelist = []
         getFileList(path, filelist)
-        #print filelist
+
         topic.CalProbPerUnigram(filelist)
         TopicList.append(topic)
 
-    print TopicList[0].Label
-    print TopicList[0].UnigramProb
-    print TopicList[0].WordsCount
-    
+    # print TopicList[0].Label
+    # print TopicList[0].UnigramProb
+    # print TopicList[0].WordsCount
+
 
 
 

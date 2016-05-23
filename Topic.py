@@ -13,9 +13,10 @@ commonWords = ('the','be','to','of','and','a','in','that','have','it','is','im',
 SQLite table
 {
 	Topic:
+		TopicName       # !!! the diff Topics may have same unigram!!! 
 		Unigram
 		Probility
-		WordsCount
+		WordsCount      # per unigram
 }
 
 '''
@@ -43,12 +44,21 @@ class Topic:
 						self.WordsCount += 1
 
 						if not self.UnigramProb.has_key(Unigram):
-							self.UnigramProb[Unigram] = 1.0
+							self.UnigramProb[Unigram] = 1
 						else:
 							self.UnigramProb[Unigram] += 1.0
 
+		#print self.UnigramProb
+		
+		c = self.conn.cursor()
 		for unigram in self.UnigramProb:
-			self.UnigramProb[unigram] /= self.WordsCount 
+			#self.UnigramProb[unigram] /= self.WordsCount
+
+			sqlcmd = "INSERT INTO Topic VALUES (%s, %s, %f, %d)" % ('\''+self.Label+'\'', '\''+unigram+'\'', self.UnigramProb[unigram]/self.WordsCount, self.UnigramProb[unigram])
+			#print sqlcmd
+			c.execute(sqlcmd)
+		c.close()
+		self.conn.commit()
 
 
 
@@ -59,15 +69,14 @@ class Topic:
 
 
 	def __init__(self, label):
-		#self.conn = sqlite3.connect('./Topic.db')
+		self.conn = sqlite3.connect('./Topic.db')
 		self.Label = label
 		return
 
 	def reset(self):
 		c = self.conn.cursor()
 		try:
-			c.execute('delete from Unigram')
-			c.execute('delete from WordsCount')
+			c.execute('delete from Topic')
 
 		finally:
 			c.close()
