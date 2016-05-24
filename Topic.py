@@ -14,8 +14,9 @@ commonWords = ('more','article','i','the','be','am','to','of','and','a','in','th
 	'now','look','only','come','its','over','think','also','back','after','use','two','how','our','way','even','because',
 	'any','these','us')
 
+"""
+CREATE TABLE 'Topic' ('TopicName' CHAR DEFAULT '""', 'Unigram' CHAR DEFAULT '""', 'Probility' DOUBLE DEFAULT '0', 'WordsCount' INTEGER DEFAULT '0')
 
-'''
 SQLite table
 {
 	Topic:
@@ -24,13 +25,24 @@ SQLite table
 		Probility
 		WordsCount      # per unigram
 }
+"""
 
-'''
-
-class Topic:
+class TopicModel:
 	Label	     = ""    # topic folder dir name 
 	UnigramCount = {}    # dictionary
 	WordsCount   = 0		# totally words count of Topic
+
+	def SelectUnigramFromDB(self):
+		self.WordsCount = 0
+		c = self.conn.cursor()
+		sqlcmd = "SELECT * FROM Topic WHERE TopicName=\'%s\'" % (self.Label)
+		c.execute(sqlcmd)
+		data = c.fetchall()
+		for row in data:
+			self.UnigramCount[str(row[1])] = row[3]
+			self.WordsCount += int(row[3])
+			
+		c.close()
 
 	def CalProbPerUnigram(self, FileList):
 		"""
@@ -53,8 +65,6 @@ class Topic:
 							self.UnigramCount[Unigram] = 1
 						else:
 							self.UnigramCount[Unigram] += 1.0
-
-		#print self.UnigramCount
 		
 		c = self.conn.cursor()
 		for unigram in self.UnigramCount:
@@ -64,28 +74,31 @@ class Topic:
 				prob = np.log(prob)
 			else:
 				prob = -9.2
-			sqlcmd = "INSERT INTO Topic VALUES (%s, %s, %f, %d)" % ('\''+self.Label+'\'', '\''+unigram+'\'', prob, self.UnigramCount[unigram])
-			#print sqlcmd
+			sqlcmd = "INSERT INTO Topic VALUES(%s, %s, %f, %d)" % ('\''+self.Label+'\'', '\''+unigram+'\'', prob, self.UnigramCount[unigram])
 			c.execute(sqlcmd)
 		c.close()
 		self.conn.commit()
 
-		#print self.WordsCount
+	def SQL_SUM(self):
+		c = self.conn.cursor()
+		sqlcmd2 = "SELECT SUM(WordsCount) FROM Topic where TopicName='%s'" % (self.Label)
+		c.execute(sqlcmd2)
+		print self.Label, int(c.fetchone()[0]), self.WordsCount
 
-		return
+
 
 	def __init__(self, label):
-		self.conn = sqlite3.connect('./Topic.db')
-
-		self.Label = label
-		return
+		self.conn 			= sqlite3.connect('./Topic.db')
+		self.Label 			= label
+		self.WordsCount 	= 0
+		self.UnigramCount 	= {}
 
 	def reset(self):
 		c = self.conn.cursor()
 		try:
 			c.execute('delete from Topic')
-
 		finally:
 			c.close()
 			self.conn.commit()
+
 
