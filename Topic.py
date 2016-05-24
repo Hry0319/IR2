@@ -28,9 +28,10 @@ SQLite table
 """
 
 class TopicModel:
-	Label	     = ""    # topic folder dir name 
-	UnigramCount = {}    # dictionary
-	WordsCount   = 0		# totally words count of Topic
+	Label	     	= ""    # topic folder dir name 
+	UnigramCount 	= {}    # dictionary
+	WordsCount   	= 0		# totally words count of Topic
+	Probility 		= 0.0     # the probility of P(Topic), the probility for each Topic 
 
 	def SelectUnigramFromDB(self):
 		self.WordsCount = 0

@@ -15,7 +15,7 @@ except ImportError:
 import sqlite3
 
 #io.DEFAULT_BUFFER_SIZE = 65535
-reGenDB = 1
+reGenDB = 0
 
 def main():    
     DataDir             = "../20news/"
@@ -32,43 +32,48 @@ def main():
     parser.add_option("-n", action="store", type="string", dest="Labeled_Data_Size" , default = Labeled_Data_Size  , help = "")
     (options, args) = parser.parse_args()
 
+
+
     TopicList       = []
     TrainingDirList = []
- 
+
     getDirList(DataDir + 'Train/', TrainingDirList)
     #print TrainingTopicList
 
-#debug clear sql db
+# 
+# parse to DB or Select from DB  
+# IF YOU RUN THIS FIRST TIME , BE SURE YOUR SQL TABLE IS GENERATED BEFORE IT
+# 
     if reGenDB :
         TopicModel('test').reset()
 
         for path in TrainingDirList:
-            topic    = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
             filelist = []
-
             getFileList(path, filelist)
+
+            topic    = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
             topic.CalProbPerUnigram(filelist)
-            TopicList.append([topic, topic.WordsCount])
-            topic.SQL_SUM()
+            TopicList.append(topic)
+            # topic.SQL_SUM()
             TotalWords += topic.WordsCount
 
     else:
         # TotalWords = 164913
         for path in TrainingDirList:
-            topic    = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
             filelist = []
-
             getFileList(path, filelist)
+
+            topic    = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
             topic.SelectUnigramFromDB()
-            TopicList.append([topic, topic.WordsCount])
-            topic.SQL_SUM()
+            TopicList.append(topic)
+            # topic.SQL_SUM()
             TotalWords += topic.WordsCount
-    
-    print TotalWords
 
+#  Cal each Topics' probility     ( sum of these probility is 1.0 )
+    for topic in TopicList:
+        topic.Probility = float(topic.WordsCount)/TotalWords
+        test += topic.Probility
 
-    # for topic in TopicList:
-    #     print topic[0].Label, topic[0].WordsCount
 
 
 
