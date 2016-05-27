@@ -3,8 +3,8 @@ import os
 import io
 import sys
 import gc
-import numpy as np
 import sqlite3
+import numpy as np
 
 commonWords = ('more','article','i','the','be','am','to','of','and','a','in','that','has','have','had',
 	'no','an','been','not','it','is','im','are','were','was','for','on','with','he','as','you','do','does',
@@ -34,6 +34,9 @@ class TopicModel:
 	Probility 		= 0.0     # the probility of P(Topic), the probility for each Topic 
 
 	def SelectUnigramFromDB(self):
+		"""
+		Be sure your DB is not empty 
+		"""
 		self.WordsCount = 0
 		c = self.conn.cursor()
 		sqlcmd = "SELECT * FROM Topic WHERE TopicName=\'%s\'" % (self.Label)
@@ -44,6 +47,11 @@ class TopicModel:
 			self.WordsCount += int(row[3])
 			
 		c.close()
+
+		#
+		# Sort dictionary by value
+		#
+		self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda d:d[1], reverse = True)
 
 	def CalProbPerUnigram(self, FileList):
 		"""
@@ -80,13 +88,17 @@ class TopicModel:
 		c.close()
 		self.conn.commit()
 
+		#
+		# Sort dictionary by value
+		#
+		self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda (k,v): (v,k))
+
 	def SQL_SUM(self):
+	# get WordsCount from DB
 		c = self.conn.cursor()
 		sqlcmd2 = "SELECT SUM(WordsCount) FROM Topic where TopicName='%s'" % (self.Label)
 		c.execute(sqlcmd2)
 		print self.Label, int(c.fetchone()[0]), self.WordsCount
-
-
 
 	def __init__(self, label):
 		self.conn 			= sqlite3.connect('./Topic.db')
@@ -101,5 +113,3 @@ class TopicModel:
 		finally:
 			c.close()
 			self.conn.commit()
-
-
