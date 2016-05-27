@@ -3,12 +3,13 @@ import os
 import io
 import sys
 import gc
+import string
 import sqlite3
 
 import numpy as np
 
 from optparse import OptionParser
-from Topic import TopicModel
+from Topic import TopicModel, CommonWords
 
 reGenDB = 0
 
@@ -25,7 +26,7 @@ def main():
     parser.add_option("-o", action="store", type="string", dest="OutPutFile"        , default = OutPutFile         , help = "")
     parser.add_option("-n", action="store", type="string", dest="Labeled_Data_Size" , default = Labeled_Data_Size  , help = "")
     (options, args)     = parser.parse_args()
-    DataDir             = options.DataDir
+    DataDir             = options.DataDir + '/'
     OutPutFile          = options.OutPutFile
     Labeled_Data_Size   = options.Labeled_Data_Size
 
@@ -40,7 +41,7 @@ def main():
     # IF YOU RUN THIS FIRST TIME , BE SURE YOUR SQL TABLE IS GENERATED BEFORE IT
     # 
     if reGenDB :
-        TopicModel('test').reset()
+        TopicModel('ResetDB').reset()
 
         for path in TrainingDirList:
             filelist = []
@@ -49,7 +50,7 @@ def main():
             topic    = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
             topic.CalProbPerUnigram(filelist)
             TopicList.append(topic)
-            # topic.SQL_SUM()
+            topic.SQL_SUM()
             TotalWords += topic.WordsCount
 
     else:
@@ -61,9 +62,9 @@ def main():
             topic    = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
             topic.SelectUnigramFromDB()
             TopicList.append(topic)
-            # topic.SQL_SUM()
+            topic.SQL_SUM()
             TotalWords += topic.WordsCount
-    # print TotalWords
+    print TotalWords
 
     #
     #  Cal each Topics' probility     ( sum of these probility is 1.0 )
@@ -73,9 +74,38 @@ def main():
 
 
 
+    #
+    # Classify the test data  
+    # There are 9419 files in 20news/test/
+    #
+    # TestDataPath     = DataDir + 'test/'
+    # TestDataFileList = []
+    # getFileList(TestDataPath, TestDataFileList)
+    # # for path in TestDataFileList:
+    #     # Classifier(path, TopicList)
+    # Classifier(TestDataFileList[0], TopicList)
 
 
 
+
+def Classifier(path, TopicList):
+    f = open(path)
+    Lines = f.readlines()
+    f.close()
+
+    for line in Lines:
+        wordslist = line.lower().strip().split(' ')
+
+        for Unigram in wordslist:
+            trantab = string.maketrans('','')
+            delEStr = string.punctuation
+            Unigram = Unigram.translate(trantab, delEStr)
+            if Unigram not in CommonWords and Unigram != '':
+                print Unigram
+
+
+
+    return
 
 def getDirList(path, DirList):
     for item in os.listdir(path):
