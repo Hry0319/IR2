@@ -50,11 +50,11 @@ def main():
             topic    = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
             topic.CalProbPerUnigram(filelist)
             TopicList.append(topic)
-            topic.SQL_SUM()
+            # topic.SQL_SUM()
             TotalWords += topic.WordsCount
 
     else:
-        # TotalWords = 164913
+        # TotalWords = 235867
         for path in TrainingDirList:
             filelist = []
             getFileList(path, filelist)
@@ -62,15 +62,15 @@ def main():
             topic    = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
             topic.SelectUnigramFromDB()
             TopicList.append(topic)
-            topic.SQL_SUM()
+            # topic.SQL_SUM()
             TotalWords += topic.WordsCount
-    print TotalWords
+    # print TotalWords
 
     #
-    #  Cal each Topics' probility     ( sum of these probility is 1.0 )
+    #  Cal each Topics' Probability     ( sum of these Probability is 1.0 )
     #
     for topic in TopicList:
-        topic.Probility = float(topic.WordsCount)/TotalWords
+        topic.Probability = float(topic.WordsCount)/TotalWords
 
 
 
@@ -78,12 +78,13 @@ def main():
     # Classify the test data  
     # There are 9419 files in 20news/test/
     #
-    # TestDataPath     = DataDir + 'test/'
-    # TestDataFileList = []
-    # getFileList(TestDataPath, TestDataFileList)
-    # # for path in TestDataFileList:
-    #     # Classifier(path, TopicList)
-    # Classifier(TestDataFileList[0], TopicList)
+    TestDataPath     = DataDir + 'test/'
+    TestDataFileList = []
+    AnswerList       = []
+    getFileList(TestDataPath, TestDataFileList)
+
+    for path in TestDataFileList[:1]:    #test debug
+        AnswerList.append( Classifier(path, TopicList) )
 
 
 
@@ -93,19 +94,73 @@ def Classifier(path, TopicList):
     Lines = f.readlines()
     f.close()
 
+    TestDataUnigramList = []
+
     for line in Lines:
-        wordslist = line.lower().strip().split(' ')
+        trantab = string.maketrans('','')
+        delEStr = string.punctuation
+        line = line.translate(trantab, delEStr)
 
-        for Unigram in wordslist:
-            trantab = string.maketrans('','')
-            delEStr = string.punctuation
-            Unigram = Unigram.translate(trantab, delEStr)
-            if Unigram not in CommonWords and Unigram != '':
-                print Unigram
+        tmpList = line.lower().strip().split(' ')
+
+        for Unigram in tmpList:
+            if Unigram.isalpha() and Unigram not in CommonWords:
+                # print Unigram
+                TestDataUnigramList.append(Unigram)
+    # print TestDataUnigramList
+
+    for topic in TopicList[:1]:    #test debug
+        for TestDataUni in TestDataUnigramList:  #對每個字去db找data
+            """ 2 way to matching Unigram  1, list   2, DB """
+            #
+            # 1 LIST
+            #
+            # for Uni, prob in topic.UnigramCount:
+            #     if TestDataUni == Uni:
+            #         print TestDataUni, prob, "   ", 
+
+            #
+            # 2 DB
+            #
+            Select = DB_Select('WordsCount', 'Topic' ,'Unigram = \''+ TestDataUni+ '\' and TopicName = \''+ topic.Label+'\'')
+            for sel, in Select:
+                print  sel
+
+            # TopicWordsCount
+            # sel
+            # NaiveBayes
 
 
+
+
+
+
+
+
+
+
+
+    return  # return the label name of the file from test
+
+
+
+def NaiveBayesProbability(Class, Feature):
 
     return
+
+def DB_Select(Select ,Table, Where):
+    conn = sqlite3.connect('./Topic.db')
+    c = conn.cursor()
+    sqlcmd = "SELECT %s FROM %s WHERE %s" % (Select, Table ,Where)
+    c.execute(sqlcmd)
+
+    data = c.fetchall()
+    # for row in data:  # (u'TopicName', u'Unigram', LogProb, WordsCount)
+    c.close()
+
+    if data != None:
+        return data
+
 
 def getDirList(path, DirList):
     for item in os.listdir(path):

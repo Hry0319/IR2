@@ -16,41 +16,42 @@ CommonWords = ('','more','article','i','the','be','am','to','of','and','a','in',
 	'any','these','us')
 
 """
-CREATE TABLE 'Topic' ('TopicName' CHAR DEFAULT '""', 'Unigram' CHAR DEFAULT '""', 'Probility' DOUBLE DEFAULT '0', 'WordsCount' INTEGER DEFAULT '0')
+CREATE TABLE 'Topic' ('TopicName' CHAR DEFAULT '""', 'Unigram' CHAR DEFAULT '""', 'Probability' DOUBLE DEFAULT '0', 'WordsCount' INTEGER DEFAULT '0')
 
 SQLite table
 {
 	Topic:
 		TopicName       # !!! the diff Topics may have same unigram!!!
 		Unigram
-		Probility
+		Probability
 		WordsCount      # per unigram
 }
 """
 
 class TopicModel:
 	Label	     	= ""    # topic folder dir name
-	UnigramCount 	= {}    # dictionary
-	WordsCount   	= 0		# totally words count of Topic
-	Probility 		= 0.0     # the probility of P(Topic), the probility for each Topic
+	UnigramCount 	= {}    # dictionary !!!// this dictionary will transform to be a sorted List
+	TopicWordsCount = 0		# totally words count of Topic
+	Probability 	= 0.0     # the Probability of P(Topic), the Probability for each Topic
 
 	def SelectUnigramFromDB(self):
 		"""
 		Be sure your DB is not empty
 		"""
-		self.WordsCount = 0
+		self.TopicWordsCount= 0
 		c = self.conn.cursor()
 		sqlcmd = "SELECT * FROM Topic WHERE TopicName=\'%s\'" % (self.Label)
 		c.execute(sqlcmd)
 		data = c.fetchall()
 		for row in data:
 			self.UnigramCount[str(row[1])] = row[3]
-			self.WordsCount += int(row[3])
+			self.TopicWordsCount+= int(row[3])
 
 		c.close()
 
 		#
 		# Sort dictionary by value
+		# transform to List
 		#
 		self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda d:d[1], reverse = True)
 
@@ -70,10 +71,9 @@ class TopicModel:
 
 				wordslist = line.lower().strip().split(' ')
 
-				for Unigram in wordslist:
-					
+				for Unigram in wordslist:					
 					if Unigram.isalpha() and Unigram not in CommonWords:
-						self.WordsCount += 1
+						self.TopicWordsCount+= 1
 						if not self.UnigramCount.has_key(Unigram):
 							self.UnigramCount[Unigram] = 1
 						else:
@@ -84,9 +84,11 @@ class TopicModel:
 
 			prob = self.UnigramCount[unigram]/self.WordsCount
 			if prob != 0 :
-				prob = np.log(prob)
+				# prob = np.log(prob)
+				''' do nothing '''
 			else:
-				prob = -9.6
+				# prob = -9.6
+				prob = float(3.25e-05)
 			sqlcmd = "INSERT INTO Topic VALUES(%s, %s, %f, %d)" % ('\''+self.Label+'\'', '\''+unigram+'\'', prob, self.UnigramCount[unigram])
 			c.execute(sqlcmd)
 		c.close()
@@ -98,17 +100,17 @@ class TopicModel:
 		self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda (k,v): (v,k))
 
 	def SQL_SUM(self):
-		# get WordsCount from DB
+		# get TopicWordsCountfrom DB
 		c = self.conn.cursor()
 		sqlcmd2 = "SELECT SUM(WordsCount) FROM Topic where TopicName='%s'" % (self.Label)
 		c.execute(sqlcmd2)
 		print self.Label, int(c.fetchone()[0]), self.WordsCount
 
 	def __init__(self, label):
-		self.conn 			= sqlite3.connect('./Topic.db')
-		self.Label 			= label
-		self.WordsCount 	= 0
-		self.UnigramCount 	= {}
+		self.conn 			 = sqlite3.connect('./Topic.db')
+		self.Label 			 = label
+		self.TopicWordsCount = 0
+		self.UnigramCount 	 = {}
 
 	def reset(self):
 		c = self.conn.cursor()
