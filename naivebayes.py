@@ -64,7 +64,7 @@ def main():
             TopicList.append(topic)
             # topic.SQL_SUM()
             TotalWords += topic.TopicWordsCount
-    # print TotalWords
+    print TotalWords
 
     #
     #  Cal each Topics' Probability     ( sum of these Probability is 1.0 )
@@ -83,7 +83,7 @@ def main():
     AnswerList       = []
     getFileList(TestDataPath, TestDataFileList)
 
-    for path in TestDataFileList[:5]:    #test debug
+    for path in TestDataFileList[0:5]:    #test debug
         AnswerList.append( Classifier(path, TopicList) )
 
     print AnswerList
@@ -112,7 +112,7 @@ def Classifier(path, TopicList):
     SimilarClass = ""
     tmpL         = 0.0
     for topic in TopicList:#[:1]:    #test debug
-        Likelihood = 1.0
+        Likelihood = 0.0
         Select = []
         for TestDataUni in TestDataUnigramList:  #對每個字去db找data
             """ 2 way to matching Unigram  1, list   2, DB """
@@ -121,12 +121,16 @@ def Classifier(path, TopicList):
             # 1 LIST
             #
             Count = topic.UnigramCount.get(TestDataUni)
-            if Count != None:
-                Likelihood *= Count/topic.TopicWordsCount
 
-        Likelihood = np.log( float(Likelihood/topic.TopicWordsCount) / float(topic.TopicProbability)  )
+            if Count != None:
+                Likelihood += np.log(float(Count) / topic.VocabCount)  # ? 235867
+
+        # print Likelihood
+
+        Likelihood = Likelihood - np.log(topic.TopicProbability)
 
         print Likelihood
+
 
             #
             #--------------------------------------------
@@ -144,6 +148,7 @@ def Classifier(path, TopicList):
 
         if tmpL == 0:
             tmpL = Likelihood
+            SimilarClass = topic.Label
         elif Likelihood > tmpL:
             tmpL = Likelihood
             SimilarClass = topic.Label

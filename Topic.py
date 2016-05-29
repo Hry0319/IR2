@@ -34,6 +34,7 @@ class TopicModel:
 	UnigramCount 	 = {}    # dictionary !!!  (O) OrderedDict   (X) this dictionary will transform to be a sorted List
 	TopicWordsCount  = 0		# totally words count of Topic
 	TopicProbability = 0.0     # the TopicProbability of P(Topic), the TopicProbability for each Topic
+	VocabCount       = 0
 
 	def SelectUnigramFromDB(self):
 		"""
@@ -55,8 +56,9 @@ class TopicModel:
 		# transform to List
 		#
 		# self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda d:d[1], reverse = True)[0:15]  // this will be list or tuple
-		self.UnigramCount = OrderedDict(sorted(self.UnigramCount.items(), key=lambda x: x[1]))
-
+		self.UnigramCount = OrderedDict(sorted(self.UnigramCount.items(), key=lambda x: x[1], reverse = True))
+		self.VocabCount = len(self.UnigramCount )
+		
 
 	def CalProbPerUnigram(self, FileList):
 		"""
@@ -101,7 +103,8 @@ class TopicModel:
 		# Sort dictionary by value
 		#
 		# self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda (k,v): (v,k))[0:15]  // this will be list or tuple
-		self.UnigramCount = OrderedDict(sorted(self.UnigramCount.items(), key=lambda x: x[1]))
+		self.UnigramCount = OrderedDict(sorted(self.UnigramCount.items(), key=lambda x: x[1], reverse = True))
+		self.VocabCount = len(self.UnigramCount )
 
 	def SQL_SUM(self):
 		# get TopicWordsCountfrom DB
