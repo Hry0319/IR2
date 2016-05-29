@@ -9,14 +9,15 @@ import numpy as np
 from collections import OrderedDict
 
 CommonWords = ('','more','article','i','the','be','am','to','of','and','a','in','that','has','have','had',
-	'no','an','been','not','it','is','im','are','were','was','for','on','with','he','as','you','do','does',
-	'at','this','but','his','by','from','they','we','say','her','she','or','an','will','my','one','all','would',
+	'no','an','been','not','it','is','im','are','were','was','for','on','with','as','you','do','does',
+	'at','this','but','by','from','or','an','will','my','one','all','would',
 	'there','their','what','so','up','out','if','about','who','get','which','go','me','when','make','can','like',
-	'time','just','him','know','take','person','into','year','your','some','could','them','see','other','than','then',
-	'now','look','only','come','its','over','think','also','back','after','use','two','how','our','way','even','because',
-	'any','these','us')
+	'just','take','into','year','your','some','them','see','other','than','then',
+	'now','look','only','come','its','over','also','back','after','use','two','how','our','even',
+	'any','these','us',
+	'they','we','say','her','she','time','know','person','think','way','his','he','him','could','because',)
 
-"""
+"""  
 CREATE TABLE 'Topic' ('TopicName' CHAR DEFAULT '""', 'Unigram' CHAR DEFAULT '""', 'Probability' DOUBLE DEFAULT '0', 'WordsCount' INTEGER DEFAULT '0')
 
 SQLite table
@@ -31,10 +32,12 @@ SQLite table
 
 class TopicModel:
 	Label	     	 = ""    # topic folder dir name
-	UnigramCount 	 = {}    # dictionary !!!  (O) OrderedDict   (X) this dictionary will transform to be a sorted List
+	UnigramCount 	 = {}    # dictionary : (O) OrderedDict   (X) this dictionary will transform to be a sorted List
+	UnigramProb      = {}    # dictionary : [ Additive Smoothing ]
 	TopicWordsCount  = 0		# totally words count of Topic
 	TopicProbability = 0.0     # the TopicProbability of P(Topic), the TopicProbability for each Topic
 	VocabCount       = 0
+	Zeta             = 0.5
 
 	def SelectUnigramFromDB(self):
 		"""
@@ -48,8 +51,15 @@ class TopicModel:
 		for row in data:
 			self.UnigramCount[str(row[1])] = row[3]
 			self.TopicWordsCount+= int(row[3])
-
 		c.close()
+
+		#
+		# try smooth   additive => 0.5
+		#
+		for count in self.UnigramCount:
+			zeta = self.Zeta
+			self.UnigramProb[count] = (self.UnigramCount[count] + zeta) / (self.TopicWordsCount + self.VocabCount * zeta)
+
 
 		#
 		# Sort dictionary by value
@@ -58,7 +68,7 @@ class TopicModel:
 		# self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda d:d[1], reverse = True)[0:15]  // this will be list or tuple
 		self.UnigramCount = OrderedDict(sorted(self.UnigramCount.items(), key=lambda x: x[1], reverse = True))
 		self.VocabCount = len(self.UnigramCount )
-		
+
 
 	def CalProbPerUnigram(self, FileList):
 		"""
@@ -98,6 +108,13 @@ class TopicModel:
 			c.execute(sqlcmd)
 		c.close()
 		self.conn.commit()
+
+		#
+		# try smooth   additive => 0.5
+		#
+		for count in self.UnigramCount:
+			zeta = self.Zeta
+			self.UnigramProb[count] = (self.UnigramCount[count] + zeta) / (self.TopicWordsCount + self.VocabCount * zeta)
 
 		#
 		# Sort dictionary by value

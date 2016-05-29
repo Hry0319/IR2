@@ -5,7 +5,7 @@ import sys
 import gc
 import string
 import sqlite3
-
+# import scipy
 import numpy as np
 
 from optparse import OptionParser
@@ -83,7 +83,7 @@ def main():
     AnswerList       = []
     getFileList(TestDataPath, TestDataFileList)
 
-    for path in TestDataFileList[0:]:    #test debug
+    for path in TestDataFileList:    # test data path list 
         AnswerList.append( Classifier(path, TopicList) )
 
     # print AnswerList
@@ -116,42 +116,48 @@ def Classifier(path, TopicList):
                 TestDataUnigramList.append(Unigram)
     # print TestDataUnigramList
 
+
+    LAMBDA          = 0.95
+    LAMBDA_UNK      = 1.0 - LAMBDA
+    total           = 0
+    log_likelihood  = 0.0
+    unknown_total   = 0
+    smoothing_value = 10 ** 6
+
     SimilarClass = ""
     tmpL         = 0.0
-    for topic in TopicList[0:]:    #test debug
+    for topic in TopicList:
         Likelihood = 0.0
         Select = []
+
         for TestDataUni in TestDataUnigramList:  #對每個字去db找data
             """ 2 way to matching Unigram  1, list   2, DB """
-            #
-            #--------------------------------------------
-            # 1 LIST
-            #
+            # Count = topic.UnigramProb.get(TestDataUni)
+            # if Count != None:
+            #     Likelihood += np.log(Count)
+            total += 1
+            P = float(LAMBDA_UNK) / float(smoothing_value)
+            if TestDataUni in topic.UnigramProb:
+                P += LAMBDA * topic.UnigramProb[TestDataUni]
+            else:
+                unknown_total += 1
 
-            Count = topic.UnigramCount.get(TestDataUni)
+            log_likelihood += -1 * np.log2(P)
 
 
-            if Count != None and Count > 2:
-                Likelihood += np.log(float(Count) / len(TestDataUnigramList))  # ? 235867)
+        if total == 0 :
+            total = 1
+        entropy  =  float(log_likelihood) / float(total)
+        coverage =  float((total-unknown_total)) / total
+        # # print "entropy = %f" % (float(log_likelihood)/float(total))
+        # # print "coverage = %f" % (float((total-unknown_total))/total)
 
-        # print Likelihood
 
-        Likelihood = 1*( Likelihood - np.log (topic.TopicProbability) )
 
-        # print Likelihood
 
-            #
-            #--------------------------------------------
-            # 2 DB
-            #
-            # Select = DB_Select('Probability', 'Topic' ,'Unigram = \''+ TestDataUni+ '\' and TopicName = \''+ topic.Label+'\'')
-            # for sel, in Select:
-            #     # print TestDataUni, sel
-            #     if sel != 0:
-            #         Likelihood += np.log( sel )  # TopicProbability
-            #     # NaiveBayes
-            # Likelihood -= np.log(topic.TopicProbability)
- 
+        Likelihood = log_likelihood
+        log_likelihood = 0.0
+        
         if tmpL == 0:
             tmpL = Likelihood
             SimilarClass = topic.Label
@@ -180,19 +186,30 @@ def WriteOutput(path, oList):
 
     return
 
-def DB_Select(Select ,Table, Where):
+"""
+def DB_Select(Select ,Table, Where):  
+            # line 154 backup
+            #--------------------------------------------
+            # 2 DB
+            #
+            # Select = DB_Select('Probability', 'Topic' ,'Unigram = \''+ TestDataUni+ '\' and TopicName = \''+ topic.Label+'\'')
+            # for sel, in Select:
+            #     # print TestDataUni, sel
+            #     if sel != 0:
+            #         Likelihood += np.log( sel )  # TopicProbability
+            #     # NaiveBayes
+            # Likelihood -= np.log(topic.TopicProbability)
     conn = sqlite3.connect('./Topic.db')
     c = conn.cursor()
     sqlcmd = "SELECT %s FROM %s WHERE %s" % (Select, Table ,Where)
     c.execute(sqlcmd)
-
     data = c.fetchall()
     # for row in data:  # (u'TopicName', u'Unigram', LogProb, WordsCount)
     c.close()
 
     if data != None and data != 0:
         return data
-
+"""
 
 def getDirList(path, DirList):
     for item in os.listdir(path):
@@ -207,27 +224,23 @@ def getFileList(path, FileList):
         if not item.startswith('.') and os.path.isfile(os.path.join(path, item)):
             FileList.append(path + item)
 
-
-
 def evaluation(output):
     score = 0
-
     f = open('ans.test.txt')
     ans = f.readlines()
     f.close()
-
     # f = open('output.txt')
     # output = f.readlines()
     # f.close()
-
-
+    # for i in xrange(0, len(output)):
+    #     if ans[i].strip('\n').split(' ')[1] == output[i]:
+    #         score+=1
     for i in xrange(0, len(output)):
-        if ans[i].strip('\n').split(' ')[1] == output[i]:
+        if ans[i] == str(i+1) + ' ' + output[i] + '\n':
             score+=1
-
     print "\n!!   score : %d   !!\n" % score
-
     return
+
 
 # main()
 if __name__ == '__main__':
