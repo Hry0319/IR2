@@ -5,6 +5,6 @@
 
 . pypy-env/bin/activate
 
-pypy naivebayes.py
+pypy naivebayes.py $@
 
 deactivate

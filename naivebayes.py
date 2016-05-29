@@ -51,7 +51,7 @@ def main():
             topic.CalProbPerUnigram(filelist)
             TopicList.append(topic)
             # topic.SQL_SUM()
-            TotalWords += topic.WordsCount
+            TotalWords += topic.TopicWordsCount
 
     else:
         # TotalWords = 235867
@@ -63,14 +63,14 @@ def main():
             topic.SelectUnigramFromDB()
             TopicList.append(topic)
             # topic.SQL_SUM()
-            TotalWords += topic.WordsCount
+            TotalWords += topic.TopicWordsCount
     # print TotalWords
 
     #
     #  Cal each Topics' Probability     ( sum of these Probability is 1.0 )
     #
     for topic in TopicList:
-        topic.Probability = float(topic.WordsCount)/TotalWords
+        topic.TopicProbability = float(topic.TopicWordsCount)/TotalWords
 
 
 
@@ -78,15 +78,15 @@ def main():
     # Classify the test data  
     # There are 9419 files in 20news/test/
     #
-    TestDataPath     = DataDir + 'test/'
+    TestDataPath     = DataDir + 'Test/'
     TestDataFileList = []
     AnswerList       = []
     getFileList(TestDataPath, TestDataFileList)
 
-    for path in TestDataFileList[:1]:    #test debug
+    for path in TestDataFileList[:5]:    #test debug
         AnswerList.append( Classifier(path, TopicList) )
 
-
+    print AnswerList
 
 
 def Classifier(path, TopicList):
@@ -109,29 +109,46 @@ def Classifier(path, TopicList):
                 TestDataUnigramList.append(Unigram)
     # print TestDataUnigramList
 
-    for topic in TopicList[:1]:    #test debug
+    SimilarClass = ""
+    tmpL         = 0.0
+    for topic in TopicList:#[:1]:    #test debug
+        Likelihood = 1.0
+        Select = []
         for TestDataUni in TestDataUnigramList:  #對每個字去db找data
             """ 2 way to matching Unigram  1, list   2, DB """
             #
+            #--------------------------------------------
             # 1 LIST
             #
-            # for Uni, prob in topic.UnigramCount:
-            #     if TestDataUni == Uni:
-            #         print TestDataUni, prob, "   ", 
+            Count = topic.UnigramCount.get(TestDataUni)
+            if Count != None:
+                Likelihood *= Count/topic.TopicWordsCount
+
+        Likelihood = np.log( float(Likelihood/topic.TopicWordsCount) / float(topic.TopicProbability)  )
+
+        print Likelihood
 
             #
+            #--------------------------------------------
             # 2 DB
             #
-            Select = DB_Select('WordsCount', 'Topic' ,'Unigram = \''+ TestDataUni+ '\' and TopicName = \''+ topic.Label+'\'')
-            for sel, in Select:
-                print  sel
+            # Select = DB_Select('Probability', 'Topic' ,'Unigram = \''+ TestDataUni+ '\' and TopicName = \''+ topic.Label+'\'')
+            # for sel, in Select:
+            #     # print TestDataUni, sel
+            #     if sel != 0:
+            #         Likelihood += np.log( sel )  # TopicProbability
+            #     # NaiveBayes
+            # Likelihood -= np.log(topic.TopicProbability)
 
-            # TopicWordsCount
-            # sel
-            # NaiveBayes
+        
 
+        if tmpL == 0:
+            tmpL = Likelihood
+        elif Likelihood > tmpL:
+            tmpL = Likelihood
+            SimilarClass = topic.Label
 
-
+    return SimilarClass
 
 
 
@@ -158,7 +175,7 @@ def DB_Select(Select ,Table, Where):
     # for row in data:  # (u'TopicName', u'Unigram', LogProb, WordsCount)
     c.close()
 
-    if data != None:
+    if data != None and data != 0:
         return data
 
 

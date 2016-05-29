@@ -5,6 +5,6 @@
 
 . pypy-env/bin/activate
 
-pypy EM.py
+pypy EM.py $@
 
 deactivate

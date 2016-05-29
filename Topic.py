@@ -6,6 +6,7 @@ import gc
 import string
 import sqlite3
 import numpy as np
+from collections import OrderedDict
 
 CommonWords = ('','more','article','i','the','be','am','to','of','and','a','in','that','has','have','had',
 	'no','an','been','not','it','is','im','are','were','was','for','on','with','he','as','you','do','does',
@@ -22,17 +23,17 @@ SQLite table
 {
 	Topic:
 		TopicName       # !!! the diff Topics may have same unigram!!!
-		Unigram
-		Probability
+		Unigram 		# Unigram name
+		Probability     # Unigram Probability
 		WordsCount      # per unigram
 }
 """
 
 class TopicModel:
-	Label	     	= ""    # topic folder dir name
-	UnigramCount 	= {}    # dictionary !!!// this dictionary will transform to be a sorted List
-	TopicWordsCount = 0		# totally words count of Topic
-	Probability 	= 0.0     # the Probability of P(Topic), the Probability for each Topic
+	Label	     	 = ""    # topic folder dir name
+	UnigramCount 	 = {}    # dictionary !!!  (O) OrderedDict   (X) this dictionary will transform to be a sorted List
+	TopicWordsCount  = 0		# totally words count of Topic
+	TopicProbability = 0.0     # the TopicProbability of P(Topic), the TopicProbability for each Topic
 
 	def SelectUnigramFromDB(self):
 		"""
@@ -53,7 +54,9 @@ class TopicModel:
 		# Sort dictionary by value
 		# transform to List
 		#
-		self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda d:d[1], reverse = True)
+		# self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda d:d[1], reverse = True)[0:15]  // this will be list or tuple
+		self.UnigramCount = OrderedDict(sorted(self.UnigramCount.items(), key=lambda x: x[1]))
+
 
 	def CalProbPerUnigram(self, FileList):
 		"""
@@ -82,7 +85,7 @@ class TopicModel:
 		c = self.conn.cursor()
 		for unigram in self.UnigramCount:
 
-			prob = self.UnigramCount[unigram]/self.WordsCount
+			prob = self.UnigramCount[unigram]/self.TopicWordsCount
 			if prob != 0 :
 				# prob = np.log(prob)
 				''' do nothing '''
@@ -97,14 +100,15 @@ class TopicModel:
 		#
 		# Sort dictionary by value
 		#
-		self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda (k,v): (v,k))
+		# self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda (k,v): (v,k))[0:15]  // this will be list or tuple
+		self.UnigramCount = OrderedDict(sorted(self.UnigramCount.items(), key=lambda x: x[1]))
 
 	def SQL_SUM(self):
 		# get TopicWordsCountfrom DB
 		c = self.conn.cursor()
 		sqlcmd2 = "SELECT SUM(WordsCount) FROM Topic where TopicName='%s'" % (self.Label)
 		c.execute(sqlcmd2)
-		print self.Label, int(c.fetchone()[0]), self.WordsCount
+		print self.Label, int(c.fetchone()[0]), self.TopicWordsCount
 
 	def __init__(self, label):
 		self.conn 			 = sqlite3.connect('./Topic.db')
