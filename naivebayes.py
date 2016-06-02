@@ -11,7 +11,7 @@ import numpy as np
 from optparse import OptionParser
 from Topic import TopicModel, CommonWords
 
-reGenDB = 0
+reGenDB = 1
 
 def main():  
 
@@ -69,8 +69,19 @@ def main():
     #
     #  Cal each Topics' Probability     ( sum of these Probability is 1.0 )
     #
+    topicFileList = []
+    filecounts = 0
+    vocabCounts = 0
     for topic in TopicList:
-        topic.TopicProbability = float(topic.TopicWordsCount)/TotalWords
+        # topic.TopicProbability = float(topic.TopicWordsCount)/TotalWords
+        getFileList(DataDir + 'Train/' + topic.Label , topicFileList)
+        filecounts += len(topicFileList)
+        topic.TopicProbability = float(len(topicFileList))
+        # vocabCounts += len(topic.UnigramCount)
+
+    for topic in TopicList:
+        topic.TopicProbability /= float(filecounts)
+        # print topic.TopicProbability
 
 
 
@@ -83,7 +94,7 @@ def main():
     AnswerList       = []
     getFileList(TestDataPath, TestDataFileList)
 
-    for path in TestDataFileList:    # test data path list 
+    for path in TestDataFileList[:1]:    # test data path list
         AnswerList.append( Classifier(path, TopicList) )
 
     # print AnswerList
@@ -114,63 +125,44 @@ def Classifier(path, TopicList):
             if Unigram.isalpha() and Unigram not in CommonWords:
                 # print Unigram
                 TestDataUnigramList.append(Unigram)
-    # print TestDataUnigramList
+    print TestDataUnigramList , len(TestDataUnigramList)
 
-
-    LAMBDA          = 0.95
-    LAMBDA_UNK      = 1.0 - LAMBDA
-    total           = 0
-    log_likelihood  = 0.0
-    unknown_total   = 0
-    smoothing_value = 10 ** 6
-
+    # print path
     SimilarClass = ""
     tmpL         = 0.0
+    Zeta         = 1
+    dbg          = 0
     for topic in TopicList:
+        dbg += 1
         Likelihood = 0.0
-        Select = []
 
-        for TestDataUni in TestDataUnigramList:  #對每個字去db找data
-            """ 2 way to matching Unigram  1, list   2, DB """
-            # Count = topic.UnigramProb.get(TestDataUni)
-            # if Count != None:
-            #     Likelihood += np.log(Count)
-            total += 1
-            P = float(LAMBDA_UNK) / float(smoothing_value)
-            if TestDataUni in topic.UnigramProb:
-                P += LAMBDA * topic.UnigramProb[TestDataUni]
-            else:
-                unknown_total += 1
+        for TestDataUni in TestDataUnigramList: 
+            Count = topic.UnigramProb.get(TestDataUni)
 
-            log_likelihood += -1 * np.log2(P)
+            if Count != None:
+                Likelihood += np.log(Count + Zeta)
+                Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * Zeta)
+            else:                
+                Likelihood += np.log(1 + Zeta)
+                Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * Zeta)
 
+        Likelihood += np.log(topic.TopicProbability)
 
-        if total == 0 :
-            total = 1
-        entropy  =  float(log_likelihood) / float(total)
-        coverage =  float((total-unknown_total)) / total
-        # # print "entropy = %f" % (float(log_likelihood)/float(total))
-        # # print "coverage = %f" % (float((total-unknown_total))/total)
+        Likelihood *= -1
 
-
-
-
-        Likelihood = log_likelihood
-        log_likelihood = 0.0
         
-        if tmpL == 0:
+        if tmpL == 0.0:
             tmpL = Likelihood
             SimilarClass = topic.Label
-        elif Likelihood > tmpL:
+        elif Likelihood < tmpL:
             tmpL = Likelihood
             SimilarClass = topic.Label
+
+        # print tmpL , SimilarClass , dbg%20
 
     return SimilarClass   # return the label name of the file from test
 
 
-# def NaiveBayesProbability(Class, Feature):
-
-#     return
 
 def WriteOutput(path, oList):
     f = open(path, 'wb+')    
@@ -216,7 +208,6 @@ def getDirList(path, DirList):
         if not item.startswith('.') and os.path.isdir(os.path.join(path, item)):
             getDirList(path+item+'/', DirList)
             DirList.append(path+item+'/')
-
     return
 
 def getFileList(path, FileList):

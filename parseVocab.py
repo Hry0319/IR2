@@ -52,7 +52,7 @@ def parseVocab():
 
 
 
-path       = "../20news/"
+path       = "../20news/Train/"
 TopicList  = []
 FileList   = []
 
@@ -71,14 +71,16 @@ for dir in TopicList:
 parseVocab()
 
 # 4 write to file 
-# f = open('./' + 'vocab.txt', 'a')
-# for vocab in dic:
-# 	# print vocab, dic[vocab]
-# 	f. write(vocab +' '+ str(dic[vocab]) + '\n')
-# f.flush()
-# f.close()
+f = open('./' + 'vocab.txt', 'wb+')
+for vocab in dic:
+	# print vocab, dic[vocab]
+	f. write(vocab +' '+ str(dic[vocab]) + '\n')
+f.flush()
+f.close()
 
 # print dic['to']
+
+print len(dic)
 
 
 
