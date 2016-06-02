@@ -80,9 +80,9 @@ class TopicModel:
 			f.close()
 
 			for line in Lines:
-				trantab = string.maketrans('','')
-				delEStr = string.punctuation
-				line = line.translate(trantab, delEStr)
+				# trantab = string.maketrans('','')
+				# delEStr = string.punctuation
+				# line = line.translate(trantab, delEStr)
 
 				wordslist = line.lower().strip().split(' ')
 

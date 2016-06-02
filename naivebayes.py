@@ -11,7 +11,7 @@ import numpy as np
 from optparse import OptionParser
 from Topic import TopicModel, CommonWords
 
-reGenDB = 1
+reGenDB = 0
 
 def main():  
 
@@ -94,7 +94,7 @@ def main():
     AnswerList       = []
     getFileList(TestDataPath, TestDataFileList)
 
-    for path in TestDataFileList[:1]:    # test data path list
+    for path in TestDataFileList:    # test data path list
         AnswerList.append( Classifier(path, TopicList) )
 
     # print AnswerList
@@ -115,9 +115,9 @@ def Classifier(path, TopicList):
     TestDataUnigramList = []
 
     for line in Lines:
-        trantab = string.maketrans('','')
-        delEStr = string.punctuation
-        line = line.translate(trantab, delEStr)
+        # trantab = string.maketrans('','')
+        # delEStr = string.punctuation
+        # line = line.translate(trantab, delEStr)
 
         tmpList = line.lower().strip().split(' ')
 
@@ -125,7 +125,7 @@ def Classifier(path, TopicList):
             if Unigram.isalpha() and Unigram not in CommonWords:
                 # print Unigram
                 TestDataUnigramList.append(Unigram)
-    print TestDataUnigramList , len(TestDataUnigramList)
+    # print TestDataUnigramList , len(TestDataUnigramList)
 
     # print path
     SimilarClass = ""
