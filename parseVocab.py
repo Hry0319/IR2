@@ -3,10 +3,20 @@ import os
 import io
 import sys
 import gc
+import string
 import numpy as np
 import sqlite3
 # sys.setrecursionlimit(10000)
-
+CommonWords = ('all', 'just', 'being', 'over', 'both', 'through', 'yourselves', 'its', 'before', 'herself', 'had', 'should',
+	 'to', 'only', 'under', 'ours', 'has', 'do', 'them', 'his', 'very', 'they', 'not', 'during', 'now', 'him', 'nor', 'did', 
+	 'this', 'she', 'each', 'further', 'where', 'few', 'because', 'doing', 'some', 'are', 'our', 'ourselves', 'out', 'what', 
+	 'for', 'while', 'does', 'above', 'between', 't', 'be', 'we', 'who', 'were', 'here', 'hers', 'by', 'on', 'about', 'of', 
+	 'against', 's', 'or', 'own', 'into', 'yourself', 'down', 'your', 'from', 'her', 'their', 'there', 'been', 'whom', 'too', 
+	 'themselves', 'was', 'until', 'more', 'himself', 'that', 'but', 'don', 'with', 'than', 'those', 'he', 'me', 'myself', 
+	 'these', 'up', 'will', 'below', 'can', 'theirs', 'my', 'and', 'then', 'is', 'am', 'it', 'an', 'as', 'itself', 'at', 'have', 
+	 'in', 'any', 'if', 'again', 'no', 'when', 'same', 'how', 'other', 'which', 'you', 'after', 'most', 'such', 'why', 'a', 
+	 'off', 'i', 'yours', 'so', 'the', 'having', 'once'
+	)
 dic = {}
 
 def getDirList(path, DirList):
@@ -23,6 +33,7 @@ def getDirList(path, DirList):
 
 AllFilePaths = []
 def perDirFileList(path, FileList):
+	global AllFilePaths
 	for item in os.listdir(path):
 		if not item.startswith('.') and os.path.isfile(os.path.join(path, item)):
 			FileList.append(item)
@@ -31,17 +42,20 @@ def perDirFileList(path, FileList):
 
 
 def parseVocab():
+	global dic
+	global CommonWords
 	for file in AllFilePaths:
 		f = open(file)
 		Lines = f.readlines()
 		f.close()
 
-		for line in Lines:
-			wordslist = line.lower().strip().split(' ')
-
+		for line in Lines:			
+			trantab 	= string.maketrans('@.,','   ')
+			delEStr 	= "!\"#$%&'()*+-/:;<=>?[\]^_`{|}~"
+			line 		= line.translate(trantab, delEStr)
+			wordslist 	= line.lower().strip().split(' ')
 			for word in wordslist:
-
-				if word.isalpha(): 
+				if word.isalpha() and word not in CommonWords:
 					#print word
 					if not dic.has_key(word):
 						dic[word] = 1
@@ -52,7 +66,7 @@ def parseVocab():
 
 
 
-path       = "../20news/Train/"
+path       = "./20news/Train/"
 TopicList  = []
 FileList   = []
 

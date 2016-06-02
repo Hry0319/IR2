@@ -8,15 +8,16 @@ import sqlite3
 import numpy as np
 from collections import OrderedDict
 
-CommonWords = ('',
-	'more','article','i','the','be','am','to','of','and','a','in','that','has','have','had',
-	'no','an','been','not','it','is','im','are','were','was','for','on','with','as','you','do','does',
-	'at','this','but','by','from','or','an','will','my','one','all','would',
-	'there','their','what','so','up','out','if','about','who','get','which','go','me','when','make','can','like',
-	'just','take','into','year','your','some','them','see','other','than','then',
-	'look','only','come','its','over','also','back','after','use','two','how','our','even',
-	'any','these','us',)
-	# 'now','they','we','say','her','she','time','know','person','think','way','his','he','him','could','because',)
+CommonWords = ('all', 'just', 'being', 'over', 'both', 'through', 'yourselves', 'its', 'before', 'herself', 'had', 'should',
+	 'to', 'only', 'under', 'ours', 'has', 'do', 'them', 'his', 'very', 'they', 'not', 'during', 'now', 'him', 'nor', 'did', 
+	 'this', 'she', 'each', 'further', 'where', 'few', 'because', 'doing', 'some', 'are', 'our', 'ourselves', 'out', 'what', 
+	 'for', 'while', 'does', 'above', 'between', 't', 'be', 'we', 'who', 'were', 'here', 'hers', 'by', 'on', 'about', 'of', 
+	 'against', 's', 'or', 'own', 'into', 'yourself', 'down', 'your', 'from', 'her', 'their', 'there', 'been', 'whom', 'too', 
+	 'themselves', 'was', 'until', 'more', 'himself', 'that', 'but', 'don', 'with', 'than', 'those', 'he', 'me', 'myself', 
+	 'these', 'up', 'will', 'below', 'can', 'theirs', 'my', 'and', 'then', 'is', 'am', 'it', 'an', 'as', 'itself', 'at', 'have', 
+	 'in', 'any', 'if', 'again', 'no', 'when', 'same', 'how', 'other', 'which', 'you', 'after', 'most', 'such', 'why', 'a', 
+	 'off', 'i', 'yours', 'so', 'the', 'having', 'once', 'article'
+	)
 
 """  
 CREATE TABLE 'Topic' ('TopicName' CHAR DEFAULT '""', 'Unigram' CHAR DEFAULT '""', 'Probability' DOUBLE DEFAULT '0', 'WordsCount' INTEGER DEFAULT '0')
@@ -44,7 +45,7 @@ class TopicModel:
 		"""
 		Be sure your DB is not empty
 		"""
-		self.TopicWordsCount= 0
+		self.TopicWordsCount = 0
 		c = self.conn.cursor()
 		sqlcmd = "SELECT * FROM Topic WHERE TopicName=\'%s\'" % (self.Label)
 		c.execute(sqlcmd)
@@ -60,7 +61,7 @@ class TopicModel:
 		#
 		# self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda d:d[1], reverse = True)[0:15]  // this will be list or tuple
 		# self.UnigramCount = OrderedDict(sorted(self.UnigramCount.items(), key=lambda x: x[1], reverse = True))
-		self.VocabCount = 22031 #len(self.UnigramCount )    #XXXXX  not per topic , plz use the total corpus
+		self.VocabCount = 32648 #len(self.UnigramCount )    #XXXXX  not per topic , plz use the total corpus
 
 		#
 		# try smooth   additive => 0.5
@@ -80,17 +81,15 @@ class TopicModel:
 			f.close()
 
 			for line in Lines:
-				# trantab = string.maketrans('','')
-				# delEStr = string.punctuation
-				# line = line.translate(trantab, delEStr)
-
-				wordslist = line.lower().strip().split(' ')
-
+				trantab 	= string.maketrans('@.,','   ')
+				delEStr 	= "!\"#$%&'()*+-/:;<=>?[\]^_`{|}~"
+				line 		= line.translate(trantab, delEStr)
+				wordslist 	= line.lower().strip().strip().split(' ')
 				for Unigram in wordslist:					
-					if Unigram.isalpha() and Unigram not in CommonWords:
+					if Unigram.isalpha() and not Unigram in CommonWords:
 						self.TopicWordsCount+= 1
-						if not self.UnigramCount.has_key(Unigram):
-							self.UnigramCount[Unigram] = 1
+						if not Unigram in self.UnigramCount:
+							self.UnigramCount[Unigram] = 1.0
 						else:
 							self.UnigramCount[Unigram] += 1.0
 
@@ -98,12 +97,12 @@ class TopicModel:
 		for unigram in self.UnigramCount:
 
 			prob = self.UnigramCount[unigram]/self.TopicWordsCount
-			if prob != 0 :
-				# prob = np.log(prob)
-				''' do nothing '''
-			else:
-				# prob = -9.6
-				prob = float(3.25e-05)
+			# if prob != 0 :
+			# 	# prob = np.log(prob)
+			# 	''' do nothing '''
+			# else:
+			# 	# prob = -9.6
+			# 	prob = float(3.25e-05)
 			sqlcmd = "INSERT INTO Topic VALUES(%s, %s, %f, %d)" % ('\''+self.Label+'\'', '\''+unigram+'\'', prob, self.UnigramCount[unigram])
 			c.execute(sqlcmd)
 		c.close()
@@ -114,7 +113,7 @@ class TopicModel:
 		#
 		# self.UnigramCount = sorted(self.UnigramCount.iteritems(), key=lambda (k,v): (v,k))[0:15]  // this will be list or tuple
 		# self.UnigramCount = OrderedDict(sorted(self.UnigramCount.items(), key=lambda x: x[1], reverse = True))
-		self.VocabCount = 22031#len(self.UnigramCount )   #XXXXX  not per topic , plz use the total corpus
+		self.VocabCount = 32648 #len(self.UnigramCount )   #XXXXX  not per topic , plz use the total corpus
 
 		#
 		# try smooth   additive => 0.5
