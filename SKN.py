@@ -24,8 +24,7 @@ Vocab 	   		= {}
 path       		= "./20news/Train/"
 outputPath 		= "./JiaJia/"
 TopicList  		= []
-AllFilePaths 	= []
-
+indexV = 0
 
 # class Topic:
 # 	Label 			= ""
@@ -42,15 +41,13 @@ def getDirList(path, DirList):
 	return
 
 def perDirFileList(path, FileList):
-	global AllFilePaths
 	for item in os.listdir(path):
 		if not item.startswith('.') and os.path.isfile(os.path.join(path, item)):
 			FileList.append(item)
-			## for vocab parse
-			AllFilePaths.append(path + item)
-	return
+	return FileList
 
-def parseVocab(path, index):
+def parseVocab(path):
+	global indexV
 	global Vocab
 	f = open(path)
 	Lines = f.readlines()
@@ -68,9 +65,9 @@ def parseVocab(path, index):
 		for Unigram in UnigramList:
 			if Unigram.isalpha() and not Unigram in CommonWords:
 				if not Unigram in Vocab:
-					Vocab[Unigram] = index
-	        		index += 1
-	return index
+					Vocab[Unigram] = indexV
+					indexV += 1
+
 
 def parseToSklnFmt(path):
 	tmpDic = {}
@@ -110,20 +107,29 @@ def parseToSklnFmt(path):
 ##################################################################################################################
 
 getDirList(path, TopicList)
-index = 0
 TopicList += ["./20news/Test/"]
-# print TopicList
 
 for topic in TopicList:
+	print topic
 	FileList = []
-	perDirFileList(topic, FileList)
+	FileList = perDirFileList(topic, FileList)
 	for file in FileList:
-		index = parseVocab(topic + file, index)
+		parseVocab(topic + file)
+
+
 # print Vocab
-# print len(Vocab)
+print len(Vocab)
 #89872
 
-AllFilePaths 	= []
+##################################################################################################################
+
+
+
+
+
+
+
+
 index = 0
 outPutString = ""
 TopicList = []
