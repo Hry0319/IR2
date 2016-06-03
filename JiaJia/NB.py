@@ -18,4 +18,4 @@ for i, Y in enumerate(Y_predict):
     if Y == Y_test[i]:
         correct += 1
 
-print correct/len(Y_train)
+print correct/len(Y_test)
