@@ -11,7 +11,7 @@ import numpy as np
 from optparse import OptionParser
 from Topic import TopicModel, CommonWords
 
-reGenDB = 1
+reGenDB = 0
 
 def main():  
 
@@ -83,10 +83,13 @@ def main():
     # Classify the test data  
     # There are 9419 files in 20news/test/
     #
+    import re
     TestDataPath     = DataDir + 'Test/'
     TestDataFileList = []
     AnswerList       = []
     getFileList(TestDataPath, TestDataFileList)
+    TestDataFileList = sorted(TestDataFileList, key=lambda x: (int(re.sub('\D','',x)),x))
+    
 
     for path in TestDataFileList:    # test data path list
         AnswerList.append( Classifier(path, TopicList) )
@@ -165,12 +168,7 @@ def evaluation(output):
     f = open('ans.test.txt')
     ans = f.readlines()
     f.close()
-    # f = open('output.txt')
-    # output = f.readlines()
-    # f.close()
-    # for i in xrange(0, len(output)):
-    #     if ans[i].strip('\n').split(' ')[1] == output[i]:
-    #         score+=1
+
     for i in xrange(0, len(output)):
         if ans[i] == str(i+1) + ' ' + output[i] + '\n':
             score+=1
