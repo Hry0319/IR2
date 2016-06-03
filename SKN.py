@@ -46,6 +46,13 @@ def perDirFileList(path, FileList):
 			FileList.append(item)
 	return FileList
 
+def getUnigrams(OneLine):
+	trantab = string.maketrans('@.,','   ')
+	delEStr = "!\"#$%&'()*+-/:;<=>?[\]^_`{|}~"
+	OneLine = OneLine.translate(trantab, delEStr
+	words   = OneLine.lower().strip().split(' ')
+	return words
+
 def parseVocab(path):
 	global indexV
 	global Vocab
@@ -56,16 +63,11 @@ def parseVocab(path):
 	UnigramList = []
 
 	for line in Lines:
-		trantab = string.maketrans('@.,','   ')
-		delEStr = "!\"#$%&'()*+-/:;<=>?[\]^_`{|}~"
-		line = line.translate(trantab, delEStr)
-		# exclude 	= set(string.punctuation)
-		# line		= ''.join(ch for ch in line if ch not in exclude )
-		UnigramList = line.lower().strip().split(' ')
-		for Unigram in UnigramList:
-			if Unigram.isalpha() and not Unigram in CommonWords:
-				if not Unigram in Vocab:
-					Vocab[Unigram] = indexV
+		UnigramList = getUnigrams(line)
+		for unigram in UnigramList:
+			if unigram.isalpha() and not unigram in CommonWords:
+				if not unigram in Vocab:
+					Vocab[unigram] = indexV
 					indexV += 1
 
 
@@ -82,14 +84,8 @@ def parseToSklnFmt(path):
 	UnigramList = []
 
 	for line in Lines:
-		trantab = string.maketrans('@.,','   ')
-		delEStr = "!\"#$%&'()*+-/:;<=>?[\]^_`{|}~"
-		line = line.translate(trantab, delEStr)
-		# exclude 	= set(string.punctuation)
-		# line		= ''.join(ch for ch in line if ch not in exclude )
-		UnigramList = line.lower().strip().split(' ')
+		UnigramList = getUnigrams(line)
 		for unigram in UnigramList:
-
 			if unigram.isalpha() and not unigram in CommonWords:
 				VocabNumber = Vocab.get(unigram)
 	        	if VocabNumber != None and VocabNumber != 0:

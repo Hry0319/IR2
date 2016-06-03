@@ -11,7 +11,7 @@ import numpy as np
 from optparse import OptionParser
 from Topic import TopicModel, CommonWords
 
-reGenDB = 0
+reGenDB = 1
 
 def main():  
 
@@ -41,7 +41,7 @@ def main():
     # IF YOU RUN THIS FIRST TIME , BE SURE YOUR SQL TABLE IS GENERATED BEFORE IT
     # 
     if reGenDB :
-        TopicModel('ResetDB').reset()
+        TopicModel.reset()
 
         for path in TrainingDirList:
             filelist = []
@@ -108,10 +108,7 @@ def Classifier(path, TopicList):
     TestDataUnigramList = []
 
     for line in Lines:
-        trantab     = string.maketrans('@.,','   ')
-        delEStr     = "!\"#$%&'()*+-/:;<=>?[\]^_`{|}~"
-        line        = line.translate(trantab, delEStr)
-        tmpList     = line.lower().strip().split(' ')
+        tmpList = TopicModel.getUnigrams(line)
         for Unigram in tmpList:
             if Unigram.isalpha() and Unigram not in CommonWords:
                 # print Unigram

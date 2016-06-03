@@ -215,7 +215,7 @@
 215 sci.crypt
 216 comp.os.ms-windows.misc
 217 rec.sport.hockey
-218 rec.autos
+218 comp.sys.mac.hardware
 219 sci.med
 220 rec.sport.baseball
 221 soc.religion.christian
@@ -256,7 +256,7 @@
 256 soc.religion.christian
 257 soc.religion.christian
 258 comp.windows.x
-259 rec.sport.baseball
+259 talk.politics.mideast
 260 sci.space
 261 rec.sport.baseball
 262 sci.space
@@ -828,7 +828,7 @@
 828 sci.electronics
 829 talk.politics.guns
 830 misc.forsale
-831 talk.politics.misc
+831 alt.atheism
 832 comp.windows.x
 833 comp.sys.ibm.pc.hardware
 834 sci.med
@@ -1014,7 +1014,7 @@
 1014 rec.sport.hockey
 1015 sci.electronics
 1016 comp.sys.ibm.pc.hardware
-1017 sci.crypt
+1017 comp.windows.x
 1018 soc.religion.christian
 1019 sci.electronics
 1020 sci.crypt
@@ -1052,7 +1052,7 @@
 1052 comp.sys.ibm.pc.hardware
 1053 talk.politics.misc
 1054 comp.sys.mac.hardware
-1055 talk.politics.misc
+1055 talk.politics.guns
 1056 rec.autos
 1057 sci.electronics
 1058 rec.autos
@@ -1067,7 +1067,7 @@
 1067 comp.sys.ibm.pc.hardware
 1068 sci.electronics
 1069 comp.windows.x
-1070 talk.politics.misc
+1070 sci.space
 1071 rec.sport.hockey
 1072 soc.religion.christian
 1073 soc.religion.christian
@@ -1104,7 +1104,7 @@
 1104 talk.politics.misc
 1105 soc.religion.christian
 1106 rec.sport.baseball
-1107 talk.politics.guns
+1107 comp.sys.ibm.pc.hardware
 1108 rec.motorcycles
 1109 sci.med
 1110 rec.motorcycles
@@ -1416,7 +1416,7 @@
 1416 sci.space
 1417 comp.sys.mac.hardware
 1418 sci.crypt
-1419 alt.atheism
+1419 soc.religion.christian
 1420 rec.sport.hockey
 1421 rec.sport.hockey
 1422 talk.politics.guns
@@ -2140,7 +2140,7 @@
 2140 comp.windows.x
 2141 rec.motorcycles
 2142 comp.sys.mac.hardware
-2143 talk.politics.guns
+2143 sci.electronics
 2144 sci.med
 2145 alt.atheism
 2146 comp.windows.x
@@ -2264,7 +2264,7 @@
 2264 rec.sport.hockey
 2265 comp.windows.x
 2266 rec.autos
-2267 comp.windows.x
+2267 comp.graphics
 2268 rec.autos
 2269 comp.sys.mac.hardware
 2270 sci.med
@@ -2313,7 +2313,7 @@
 2313 rec.sport.hockey
 2314 sci.space
 2315 comp.sys.ibm.pc.hardware
-2316 sci.crypt
+2316 talk.politics.mideast
 2317 sci.crypt
 2318 comp.windows.x
 2319 soc.religion.christian
@@ -2417,7 +2417,7 @@
 2417 rec.sport.hockey
 2418 soc.religion.christian
 2419 talk.politics.guns
-2420 rec.sport.baseball
+2420 rec.sport.hockey
 2421 sci.crypt
 2422 comp.windows.x
 2423 misc.forsale
@@ -2578,7 +2578,7 @@
 2578 rec.motorcycles
 2579 comp.sys.mac.hardware
 2580 rec.sport.hockey
-2581 rec.sport.baseball
+2581 soc.religion.christian
 2582 soc.religion.christian
 2583 soc.religion.christian
 2584 rec.autos
@@ -2654,7 +2654,7 @@
 2654 sci.space
 2655 talk.politics.mideast
 2656 rec.sport.baseball
-2657 talk.politics.misc
+2657 rec.autos
 2658 soc.religion.christian
 2659 talk.politics.misc
 2660 comp.sys.mac.hardware
@@ -2756,7 +2756,7 @@
 2756 sci.electronics
 2757 talk.politics.mideast
 2758 rec.sport.hockey
-2759 alt.atheism
+2759 soc.religion.christian
 2760 soc.religion.christian
 2761 rec.motorcycles
 2762 sci.med
@@ -2872,7 +2872,7 @@
 2872 soc.religion.christian
 2873 talk.religion.misc
 2874 sci.med
-2875 sci.electronics
+2875 comp.sys.mac.hardware
 2876 comp.sys.mac.hardware
 2877 comp.sys.ibm.pc.hardware
 2878 sci.electronics
@@ -2948,7 +2948,7 @@
 2948 comp.sys.mac.hardware
 2949 talk.politics.mideast
 2950 sci.med
-2951 sci.crypt
+2951 comp.windows.x
 2952 alt.atheism
 2953 talk.politics.guns
 2954 sci.electronics
@@ -3234,7 +3234,7 @@
 3234 talk.politics.mideast
 3235 comp.windows.x
 3236 comp.os.ms-windows.misc
-3237 talk.politics.guns
+3237 talk.politics.mideast
 3238 sci.space
 3239 soc.religion.christian
 3240 talk.politics.misc
@@ -3754,10 +3754,10 @@
 3754 rec.autos
 3755 talk.politics.mideast
 3756 soc.religion.christian
-3757 rec.sport.baseball
+3757 comp.windows.x
 3758 rec.motorcycles
 3759 rec.autos
-3760 talk.religion.misc
+3760 soc.religion.christian
 3761 talk.politics.misc
 3762 soc.religion.christian
 3763 sci.crypt
@@ -4006,7 +4006,7 @@
 4006 rec.sport.baseball
 4007 comp.os.ms-windows.misc
 4008 soc.religion.christian
-4009 talk.politics.misc
+4009 talk.religion.misc
 4010 alt.atheism
 4011 rec.autos
 4012 sci.crypt
@@ -4313,7 +4313,7 @@
 4313 sci.electronics
 4314 soc.religion.christian
 4315 talk.politics.misc
-4316 alt.atheism
+4316 soc.religion.christian
 4317 sci.med
 4318 alt.atheism
 4319 sci.med
@@ -4661,7 +4661,7 @@
 4661 comp.os.ms-windows.misc
 4662 comp.sys.mac.hardware
 4663 comp.os.ms-windows.misc
-4664 talk.politics.misc
+4664 talk.politics.mideast
 4665 comp.windows.x
 4666 rec.motorcycles
 4667 comp.windows.x
@@ -4916,8 +4916,8 @@
 4916 sci.med
 4917 comp.sys.ibm.pc.hardware
 4918 talk.religion.misc
-4919 talk.politics.mideast
-4920 talk.religion.misc
+4919 talk.politics.misc
+4920 soc.religion.christian
 4921 talk.politics.mideast
 4922 talk.politics.guns
 4923 talk.politics.mideast
@@ -5078,7 +5078,7 @@
 5078 rec.autos
 5079 talk.politics.mideast
 5080 comp.os.ms-windows.misc
-5081 comp.os.ms-windows.misc
+5081 soc.religion.christian
 5082 comp.sys.ibm.pc.hardware
 5083 sci.electronics
 5084 comp.sys.ibm.pc.hardware
@@ -5482,10 +5482,10 @@
 5482 comp.os.ms-windows.misc
 5483 sci.crypt
 5484 soc.religion.christian
-5485 rec.motorcycles
+5485 soc.religion.christian
 5486 alt.atheism
 5487 comp.windows.x
-5488 talk.religion.misc
+5488 soc.religion.christian
 5489 rec.autos
 5490 sci.space
 5491 soc.religion.christian
@@ -5514,7 +5514,7 @@
 5514 sci.med
 5515 sci.med
 5516 comp.windows.x
-5517 talk.politics.misc
+5517 talk.politics.guns
 5518 rec.sport.hockey
 5519 soc.religion.christian
 5520 sci.crypt
@@ -5648,7 +5648,7 @@
 5648 rec.autos
 5649 comp.sys.mac.hardware
 5650 talk.politics.mideast
-5651 talk.politics.guns
+5651 comp.sys.mac.hardware
 5652 misc.forsale
 5653 misc.forsale
 5654 comp.sys.mac.hardware
@@ -6131,7 +6131,7 @@
 6131 comp.sys.ibm.pc.hardware
 6132 comp.windows.x
 6133 talk.politics.mideast
-6134 comp.graphics
+6134 misc.forsale
 6135 comp.os.ms-windows.misc
 6136 rec.sport.baseball
 6137 talk.politics.misc
@@ -6217,7 +6217,7 @@
 6217 comp.sys.mac.hardware
 6218 rec.sport.hockey
 6219 misc.forsale
-6220 sci.crypt
+6220 comp.windows.x
 6221 sci.space
 6222 comp.windows.x
 6223 alt.atheism
@@ -6585,7 +6585,7 @@
 6585 talk.politics.misc
 6586 comp.windows.x
 6587 talk.politics.guns
-6588 sci.space
+6588 talk.religion.misc
 6589 alt.atheism
 6590 soc.religion.christian
 6591 rec.motorcycles
@@ -6660,7 +6660,7 @@
 6660 rec.sport.hockey
 6661 comp.sys.mac.hardware
 6662 sci.space
-6663 comp.sys.ibm.pc.hardware
+6663 comp.sys.mac.hardware
 6664 comp.graphics
 6665 rec.autos
 6666 sci.electronics
@@ -6807,7 +6807,7 @@
 6807 comp.sys.mac.hardware
 6808 rec.motorcycles
 6809 comp.graphics
-6810 talk.politics.guns
+6810 sci.space
 6811 talk.politics.mideast
 6812 comp.sys.ibm.pc.hardware
 6813 rec.sport.baseball
@@ -7437,7 +7437,7 @@
 7437 comp.graphics
 7438 soc.religion.christian
 7439 talk.politics.guns
-7440 talk.politics.misc
+7440 soc.religion.christian
 7441 sci.space
 7442 soc.religion.christian
 7443 sci.crypt
@@ -7756,7 +7756,7 @@
 7756 comp.sys.mac.hardware
 7757 comp.os.ms-windows.misc
 7758 sci.crypt
-7759 comp.sys.ibm.pc.hardware
+7759 comp.sys.mac.hardware
 7760 comp.sys.mac.hardware
 7761 comp.windows.x
 7762 rec.autos
@@ -7782,7 +7782,7 @@
 7782 rec.sport.hockey
 7783 sci.electronics
 7784 comp.windows.x
-7785 talk.politics.misc
+7785 talk.politics.mideast
 7786 soc.religion.christian
 7787 sci.crypt
 7788 rec.motorcycles
@@ -7907,7 +7907,7 @@
 7907 sci.crypt
 7908 misc.forsale
 7909 sci.space
-7910 soc.religion.christian
+7910 talk.politics.misc
 7911 comp.graphics
 7912 comp.windows.x
 7913 sci.med
@@ -8029,14 +8029,14 @@
 8029 rec.sport.hockey
 8030 rec.sport.hockey
 8031 talk.politics.mideast
-8032 rec.motorcycles
+8032 comp.windows.x
 8033 comp.sys.mac.hardware
 8034 soc.religion.christian
 8035 alt.atheism
 8036 talk.religion.misc
 8037 comp.sys.mac.hardware
 8038 talk.politics.guns
-8039 talk.politics.guns
+8039 comp.windows.x
 8040 rec.sport.hockey
 8041 rec.sport.baseball
 8042 rec.sport.baseball
@@ -8059,7 +8059,7 @@
 8059 rec.autos
 8060 soc.religion.christian
 8061 talk.politics.mideast
-8062 sci.med
+8062 soc.religion.christian
 8063 sci.space
 8064 misc.forsale
 8065 rec.motorcycles
@@ -8235,7 +8235,7 @@
 8235 rec.sport.hockey
 8236 comp.windows.x
 8237 comp.windows.x
-8238 alt.atheism
+8238 soc.religion.christian
 8239 comp.sys.mac.hardware
 8240 rec.motorcycles
 8241 rec.sport.hockey
@@ -8608,7 +8608,7 @@
 8608 comp.windows.x
 8609 talk.politics.mideast
 8610 talk.politics.misc
-8611 misc.forsale
+8611 sci.med
 8612 sci.crypt
 8613 talk.politics.mideast
 8614 sci.med
@@ -9218,7 +9218,7 @@
 9218 talk.politics.mideast
 9219 alt.atheism
 9220 soc.religion.christian
-9221 alt.atheism
+9221 soc.religion.christian
 9222 sci.space
 9223 comp.windows.x
 9224 sci.space
@@ -9276,7 +9276,7 @@
 9276 sci.crypt
 9277 soc.religion.christian
 9278 soc.religion.christian
-9279 sci.space
+9279 sci.electronics
 9280 talk.politics.misc
 9281 talk.politics.misc
 9282 soc.religion.christian
@@ -9289,7 +9289,7 @@
 9289 talk.politics.guns
 9290 talk.politics.guns
 9291 alt.atheism
-9292 rec.sport.hockey
+9292 rec.sport.baseball
 9293 comp.windows.x
 9294 comp.sys.mac.hardware
 9295 talk.politics.mideast

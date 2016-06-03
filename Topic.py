@@ -81,10 +81,7 @@ class TopicModel:
 			f.close()
 
 			for line in Lines:
-				trantab 	= string.maketrans('@.,','   ')
-				delEStr 	= "!\"#$%&'()*+-/:;<=>?[\]^_`{|}~"
-				line 		= line.translate(trantab, delEStr)
-				wordslist 	= line.lower().strip().strip().split(' ')
+				wordslist 	= self.getUnigrams(line)
 				for Unigram in wordslist:					
 					if Unigram.isalpha() and not Unigram in CommonWords:
 						self.TopicWordsCount+= 1
@@ -135,10 +132,21 @@ class TopicModel:
 		self.TopicWordsCount = 0
 		self.UnigramCount 	 = {}
 
+	@classmethod
 	def reset(self):
-		c = self.conn.cursor()
+		conn = sqlite3.connect('./Topic.db')
+		c = conn.cursor()
 		try:
 			c.execute('delete from Topic')
 		finally:
 			c.close()
-			self.conn.commit()
+			conn.commit()
+
+	@staticmethod
+	def getUnigrams(OneLine):
+		trantab = string.maketrans('@.,','   ')
+		delEStr = "!\"#$%&'()*+-/:;<=>?[\]^_`{|}~"
+		OneLine = OneLine.translate(trantab, delEStr)
+		words 	= OneLine.lower().strip().split(' ')
+
+		return words

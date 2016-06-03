@@ -2,8 +2,13 @@
 import numpy as np
 from sklearn.datasets import load_svmlight_file
 from sklearn.naive_bayes import MultinomialNB
-X_train, Y_train = load_svmlight_file("train.txt", n_features=89873 )
+import sys
+
+X_train, Y_train = load_svmlight_file("train.txt", n_features=sys.argv[1] )
+print X_train.shape
 X_test, Y_test = load_svmlight_file("test.txt")
+print X_test.shape
+
 clf = MultinomialNB()
 clf.fit(X_train, Y_train)
 
