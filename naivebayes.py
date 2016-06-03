@@ -89,13 +89,9 @@ def main():
     AnswerList       = []
     getFileList(TestDataPath, TestDataFileList)
     TestDataFileList = sorted(TestDataFileList, key=lambda x: (int(re.sub('\D','',x)),x))
-    
 
     for path in TestDataFileList:    # test data path list
         AnswerList.append( Classifier(path, TopicList) )
-
-
-    # print AnswerList
     
     # write answer list to the output.txt    
     WriteOutput(OutPutFile, AnswerList)
@@ -121,7 +117,7 @@ def Classifier(path, TopicList):
 
     SimilarClass = ""
     tmpL         = 0.0
-    Zeta         = 1
+    Zeta         = 0.5
     for topic in TopicList:
         Likelihood = 0.0
 
@@ -136,12 +132,12 @@ def Classifier(path, TopicList):
                 Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * Zeta)
 
         Likelihood += np.log(topic.TopicProbability)
-        Likelihood *= -1
+        # Likelihood *= -1
         
         if tmpL == 0.0:
             tmpL = Likelihood
             SimilarClass = topic.Label
-        elif Likelihood < tmpL:
+        elif Likelihood > tmpL:
             tmpL = Likelihood
             SimilarClass = topic.Label
 

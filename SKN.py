@@ -57,7 +57,6 @@ def parseVocab(path):
     f.close()
 
     UnigramList = []
-
     for line in Lines:
         UnigramList = getUnigrams(line)  # slice each line with some rule
         for unigram in UnigramList:  # <--------------------    
