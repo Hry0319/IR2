@@ -35,11 +35,24 @@ SQLite table
 class TopicModel:
     Label            = ""    # topic folder dir name
     UnigramCount     = {}    # dictionary : (O) OrderedDict   (X) this dictionary will transform to be a sorted List
-    # UnigramProb      = {}    # dictionary : [ Additive Smoothing ]
     TopicWordsCount  = 0        # totally words count of Topic
-    # TopicProbability = 0.0     # the TopicProbability of P(Topic), the TopicProbability for each Topic
     VocabCount       = 0
-    # Zeta             = 0.5
+    FileCount        = 0
+    TopicProbability = 0.0
+    Zeta             = 0.0
+    LogLikelihood    = 0.0
+
+    def cal_LogLikelihood(self):
+        LogL = 0.0
+        if len(self.UnigramCount) != 0:
+            for key in self.UnigramCount:
+                LogL += np.log(self.UnigramCount[key] + self.Zeta)
+                LogL -= np.log(self.TopicWordsCount + self.VocabCount * self.Zeta)
+            # Likelihood += np.log(topic.TopicProbability)
+            self.LogLikelihood = LogL
+            return LogL
+        else:
+            return -1
 
     def SelectUnigramFromDB(self):
         """
@@ -52,10 +65,8 @@ class TopicModel:
         data = c.fetchall()
         for row in data:
             self.UnigramCount[str(row[1])] = row[3]
-            self.TopicWordsCount+= int(row[3])
+            self.TopicWordsCount += int(row[3])
         c.close()
-
-        self.VocabCount = 90656 #len(self.UnigramCount )    #XXXXX  not per topic , plz use the total corpus
 
     def CalProbPerUnigram(self, FileList):
         """
@@ -78,14 +89,11 @@ class TopicModel:
 
         c = self.conn.cursor()
         for unigram in self.UnigramCount:
-            # prob = np.log(self.UnigramCount[unigram])-np.log(self.TopicWordsCount)
             prob = 0
             sqlcmd = "INSERT INTO Topic VALUES(%s, %s, %f, %d)" % ('\''+self.Label+'\'', '\''+unigram+'\'', prob, self.UnigramCount[unigram])
             c.execute(sqlcmd)
         c.close()
         self.conn.commit()
-
-        self.VocabCount = 90656 #len(self.UnigramCount )   #XXXXX  not per topic , plz use the total corpus
 
     def SQL_SUM(self):
         # get TopicWordsCountfrom DB

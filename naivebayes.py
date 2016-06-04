@@ -13,6 +13,7 @@ from Topic import TopicModel, CommonWords
 
 reGenDB = 0
 
+# ------------------------------------  Main ------------------------------------ start
 def main():  
 
     #
@@ -33,6 +34,8 @@ def main():
     TotalWords      = 0
     TopicList       = []
     TrainingDirList = []
+    TotalFiles      = 0
+    VocabSize       = 0
 
     getDirList(DataDir + 'Train/', TrainingDirList)
 
@@ -44,40 +47,41 @@ def main():
         TopicModel.reset()
 
         for path in TrainingDirList:
-            filelist = []
+            filelist        = []
             getFileList(path, filelist)
-
-            topic    = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
+            topic           = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
+            topic.FileCount = len(filelist)
             topic.CalProbPerUnigram(filelist)
             TopicList.append(topic)
             # topic.SQL_SUM()
             TotalWords += topic.TopicWordsCount
+            TotalFiles += topic.FileCount
+            VocabSize  += len(topic.UnigramCount)
 
     else:
         for path in TrainingDirList:
-            topic = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
+            filelist        = []
+            getFileList(path, filelist)
+            topic           = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
+            topic.FileCount = len(filelist)
             topic.SelectUnigramFromDB()
             TopicList.append(topic)
             # topic.SQL_SUM()
             TotalWords += topic.TopicWordsCount
-    # print TotalWords
+            TotalFiles += topic.FileCount
+            VocabSize  += len(topic.UnigramCount)
+    print TotalWords, TotalFiles, VocabSize
+
 
     #
     #  Cal each Topics' Probability     ( sum of these Probability is 1.0 )
     #
-    topicFileList = []
     filecounts = 0
     vocabCounts = 0
     for topic in TopicList:
-        # topic.TopicProbability = float(topic.TopicWordsCount)/TotalWords
-        getFileList(DataDir + 'Train/' + topic.Label , topicFileList)
-        filecounts += len(topicFileList)
-        topic.TopicProbability = float(len(topicFileList))
-        # vocabCounts += len(topic.UnigramCount)
+        topic.TopicProbability = float(topic.FileCount) / TotalFiles
+        topic.VocabCount       = VocabSize
 
-    for topic in TopicList:
-        topic.TopicProbability /= float(filecounts)
-        # print topic.TopicProbability
 
     #
     # Classify the test data  
@@ -93,11 +97,40 @@ def main():
     for path in TestDataFileList:    # test data path list
         AnswerList.append( Classifier(path, TopicList) )
     
+
+
+    # first theta
+    sum_L  = 0.0
+    log_Ls = []
+    for topic in TopicList:
+        sum_L += topic.cal_LogLikelihood()
+        log_Ls.append(topic.cal_LogLikelihood())
+
+    # print log_Ls, sum_L
+
+    UnLabeledDataPathList = []
+    getFileList(DataDir + 'Unlabel/', UnLabeledDataPathList)
+    # un sort
+    # print UnLabeledDataPathList  
+
+
+    # EM ALGORITHM
+    for step in xrange(0, 10):
+        ''' E-step M-step '''
+
+
+
+
+
+
+
+
+
+
     # write answer list to the output.txt    
     WriteOutput(OutPutFile, AnswerList)
-
     evaluation(AnswerList)
-
+# ------------------------------------  Main ------------------------------------ end
 
 def Classifier(path, TopicList):
     f = open(path)
@@ -119,6 +152,7 @@ def Classifier(path, TopicList):
     tmpL         = 0.0
     Zeta         = 0.5
     for topic in TopicList:
+        topic.Zeta = Zeta
         Likelihood = 0.0
 
         for TestDataUni in TestDataUnigramList: 
@@ -160,15 +194,15 @@ def getFileList(path, FileList):
     return
 
 def evaluation(output):
-    score = 0
+    score = 0.0
     f = open('ans.test.txt')
     ans = f.readlines()
     f.close()
 
     for i in xrange(0, len(output)):
         if ans[i] == str(i+1) + ' ' + output[i] + '\n':
-            score+=1
-    print "\n!!   score : %d   !!\n" % score
+            score+=1.0
+    print "\n!!   score : %f   !!\n" % (score / 9417)
     return
 
 def WriteOutput(path, oList):
