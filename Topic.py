@@ -38,6 +38,7 @@ class TopicModel:
     TopicWordsCount  = 0        # totally words count of Topic
     VocabCount       = 0
     FileCount        = 0
+    EM_FileCount     = 0
     TopicProbability = 0.0
     Zeta             = 0.0
     LogLikelihood    = 0.0
@@ -52,7 +53,7 @@ class TopicModel:
             self.LogLikelihood = LogL
             return LogL
         else:
-            return -1
+            return None
 
     def SelectUnigramFromDB(self):
         """
