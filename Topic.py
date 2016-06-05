@@ -8,6 +8,8 @@ import sqlite3
 import numpy as np
 from collections import OrderedDict
 
+vocab = {}
+
 CommonWords = ('all', 'just', 'being', 'over', 'both', 'through', 'yourselves', 'its', 'before', 'herself', 'had', 'should',
      'to', 'only', 'under', 'ours', 'has', 'do', 'them', 'his', 'very', 'they', 'not', 'during', 'now', 'him', 'nor', 'did', 
      'this', 'she', 'each', 'further', 'where', 'few', 'because', 'doing', 'some', 'are', 'our', 'ourselves', 'out', 'what', 
@@ -38,10 +40,26 @@ class TopicModel:
     TopicWordsCount  = 0        # totally words count of Topic
     VocabCount       = 0
     FileCount        = 0
-    EM_FileCount     = 0
     TopicProbability = 0.0
     Zeta             = 0.0
+
+    EM_UnigramCount  = {}
+    EM_FileCount     = 0
+    EM_Lambda        = 0.0
     LogLikelihood    = 0.0
+    Expectation      = 0.0
+
+    def cal_Expectation(self, TopicList):
+        numerator   = 0.0
+        denominator = 0.0
+
+        numerator   = self.LogLikelihood + np.log(self.TopicProbability)
+        for topic in TopicList:
+            denominator += topic.LogLikelihood + np.log(topic.TopicProbability)
+
+        self.Expectation = numerator / denominator  # divide 
+
+        return self.Expectation
 
     def cal_LogLikelihood(self):
         LogL = 0.0
@@ -49,11 +67,30 @@ class TopicModel:
             for key in self.UnigramCount:
                 LogL += np.log(self.UnigramCount[key] + self.Zeta)
                 LogL -= np.log(self.TopicWordsCount + self.VocabCount * self.Zeta)
-            # Likelihood += np.log(topic.TopicProbability)
+            # LogL += np.log(self.TopicProbability)
             self.LogLikelihood = LogL
             return LogL
         else:
             return None
+
+    def EM_CalProbPerUnigram(self, FileList):
+        """
+        FileList from only one Topic Folder within the file path
+        """
+        for file in FileList:
+            f = open(file)
+            Lines = f.readlines()
+            f.close()
+
+            for line in Lines:
+                wordslist   = self.getUnigrams(line)
+                for Unigram in wordslist:                   
+                    if Unigram.isalpha() and not Unigram in CommonWords:
+                        self.TopicWordsCount+= 1
+                        if not Unigram in self.EM_UnigramCount:
+                            self.EM_UnigramCount[Unigram] = 1.0
+                        else:
+                            self.EM_UnigramCount[Unigram] += 1.0
 
     def SelectUnigramFromDB(self):
         """
@@ -67,6 +104,10 @@ class TopicModel:
         for row in data:
             self.UnigramCount[str(row[1])] = row[3]
             self.TopicWordsCount += int(row[3])
+            #
+            # set global vocab
+            #
+            TopicModel.setVocab(str(row[1]), int(row[3]))
         c.close()
 
     def CalProbPerUnigram(self, FileList):
@@ -87,6 +128,10 @@ class TopicModel:
                             self.UnigramCount[Unigram] = 1.0
                         else:
                             self.UnigramCount[Unigram] += 1.0
+                        #
+                        # set global vocab
+                        #
+                        TopicModel.setVocab(Unigram, 1.0)
 
         c = self.conn.cursor()
         for unigram in self.UnigramCount:
@@ -103,11 +148,7 @@ class TopicModel:
         c.execute(sqlcmd2)
         print self.Label, int(c.fetchone()[0]), self.TopicWordsCount
 
-    def __init__(self, label):
-        self.conn            = sqlite3.connect('./Topic.db')
-        self.Label           = label
-        self.TopicWordsCount = 0
-        self.UnigramCount    = {}
+
 
     @classmethod
     def reset(self):
@@ -125,5 +166,20 @@ class TopicModel:
         delEStr = "!\"#$%&'()*+-/:;<=>?[\]^_`{|}~"
         OneLine = OneLine.translate(trantab, delEStr)
         words   = OneLine.lower().strip().split()
-
         return words
+
+    @staticmethod    
+    def setVocab(key, value):
+        global vocab
+        if not key in vocab:
+            vocab[key] = value
+        else:
+            vocab[key] += value
+
+        return
+
+    def __init__(self, label):
+        self.conn            = sqlite3.connect('./Topic.db')
+        self.Label           = label
+        self.TopicWordsCount = 0
+        self.UnigramCount    = {}
