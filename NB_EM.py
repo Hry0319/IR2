@@ -121,7 +121,7 @@ def main():
         if nowL > prevL:
             tmpScore = nowL
         if nowL!=0 and prevL!=0:
-            if nowL - prevL <0 or (nowL / prevL) < 0.05:
+            if nowL - prevL >0 or (nowL / prevL) < 0.05:
                 break
 
         # Expectations
@@ -141,7 +141,7 @@ def main():
             topic.FileCount = 0 # for next time
 
 
-        print 'step : ', step
+        print 'step : ', step, '      Likelihood sum : ', nowL
 
 
     ##=======================================================================##
