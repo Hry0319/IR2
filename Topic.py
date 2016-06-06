@@ -72,7 +72,12 @@ class TopicModel:
             self.LogLikelihood = LogL
             return LogL
         else:
-            return None
+            for key in self.UnigramCount:
+                LogL += np.log(self.UnigramCount[key] + self.Zeta)
+                LogL -= np.log(self.TopicWordsCount + self.VocabCount * self.Zeta)
+            # LogL += np.log(self.TopicProbability)
+            self.LogLikelihood = LogL
+            return LogL
 
     def EM_CountPerUnigram(self, FileList):
         """
@@ -208,10 +213,25 @@ class TopicModel:
         self.VocabCount       = 0
         self.FileCount        = 0
         self.TopicProbability = 0.0
-        self.Zeta             = 0.0
+        self.Zeta             = 0.5
         self.UnigramCount     = {}
         self.EM_UnigramCount  = {}
         self.EM_FileCount     = 0
         self.EM_Lambda        = 0.0
         self.LogLikelihood    = 0.0
         self.Expectation      = 0.0
+
+    def dbg_DumpAllAttributeInfo(self):
+        print "Label                   :  ", self.Label
+        print "TopicNumber             :  ", self.TopicNumber
+        print "TopicWordsCount         :  ", self.TopicWordsCount
+        print "VocabCount              :  ", self.VocabCount
+        print "FileCount               :  ", self.FileCount
+        print "TopicProbability        :  ", self.TopicProbability
+        print "Zeta                    :  ", self.Zeta
+        print "UnigramCount      size  :  ", len(self.UnigramCount)
+        print "EM_UnigramCount   size  :  ", len(self.EM_UnigramCount)
+        print "EM_FileCount            :  ", self.EM_FileCount
+        print "EM_Lambda               :  ", self.EM_Lambda
+        print "LogLikelihood           :  ", self.LogLikelihood
+        print "Expectation             :  ", self.Expectation

@@ -114,31 +114,30 @@ def main():
     ##=======================================================================##
     #                            EM ALGORITHM START                           #
     ##=======================================================================##
-    Data_Topic_dic = {}
+    Data_Topic_dic  = {}
+    EM_Dataset      = []
     #
     # Data set     // unlabeled + labeled
     #
-    EM_Dataset = []
     getFileList(DataDir + 'Unlabel/', EM_Dataset)  # not sorted
     for path in TrainingDirList:
         filelist = []
         getFileList(path, filelist)
         EM_Dataset += filelist
-    TotalFiles = len(EM_Dataset)
-    Data_Topic_dic = EM_FileList2Dic(EM_Dataset)
-    print len(Data_Topic_dic)
-    TopicModel.EM_CountPerUnigram_for_vocab(EM_Dataset, vocab)
+
+    TotalFiles      = len(EM_Dataset)
+    Data_Topic_dic  = EM_FileList2Dic(EM_Dataset)
 
 
 
-    for topic in TopicList:
-        # topic.EM_CountPerUnigram(EM_Dataset)？
-        topic.EM_UnigramCount = vocab.copy()
-        print len(topic.EM_UnigramCount)
-
-
+    #
+    # E & M
+    #
     for step in xrange(0, 1):
-        '''E step'''
+        ''' ===== E step ===== '''
+        EM_guess = False
+        if (step == 0):
+            EM_guess = True
         #LogLikelihood
         for topic in TopicList:
             L = topic.cal_LogLikelihood()
@@ -146,18 +145,26 @@ def main():
         for topic in TopicList:
             topic.cal_Expectation(TopicList)   # sum = 1.0
 
+        # predict one time first
+        for path in EM_Dataset:
+            EM_Classifier(path, TopicList, Data_Topic_dic, EM_guess)
+        print Data_Topic_dic
 
-    #     '''M step'''
-    #     if step % 2 == 0:
-    #         for topic in TopicList:
-    #             topic.EM_Lambda = topic.Expectation
+        # gen vocab for each topic
+        TopicModel.EM_CountPerUnigram_for_vocab(EM_Dataset, vocab)
+        for topic in TopicList:
+            topic.EM_UnigramCount = vocab.copy()
+            # print len(topic.EM_UnigramCount)
 
-    #     else:
-    #         for topic in TopicList:
-    #             EM_cal_Theta(EM_Dataset, topic, TopicList)
-    #             print len(topic.EM_UnigramCount)
 
-    #     print 'step : ', step
+        ''' ===== M step ===== '''
+        for topic in TopicList:
+            # topic.EM_FileCount += topic.FileCount;
+            topic.TopicProbability = float(topic.EM_FileCount) / TotalFiles
+            topic.EM_FileCount = 0 # for next time
+
+
+        print 'step : ', step
 
 
 
@@ -184,21 +191,13 @@ def main():
 # end ------------------------------------  Main ------------------------------------
 
 
-def EM_FileList2Dic(FileList):
-    dic = {}
-    for path in FileList:
-        dic[path] = 0
-    return dic
 
-def EM_Classifier(path, TopicList):
-    global vocab
-
+def EM_Classifier(path, TopicList, FileDict, EM_guess = False):
     f = open(path)
     Lines = f.readlines()
     f.close()
 
     TestDataUnigramList = []
-
     for line in Lines:
         tmpList = TopicModel.getUnigrams(line)
         for Unigram in tmpList:
@@ -207,29 +206,28 @@ def EM_Classifier(path, TopicList):
                 TestDataUnigramList.append(Unigram)
     # print TestDataUnigramList , len(TestDataUnigramList)
 
-
-    SimilarClass = ""
     tmpL         = 0.0
-    Zeta         = 0.5
     for topic in TopicList:
-        if topic.Label == 'Unlabel':
-            continue
-        topic.Zeta = Zeta
         Likelihood = 0.0
+        for word in TestDataUnigramList:
+            if EM_guess == True:
+                Count = topic.UnigramCount.get(word)
+            else:
+                Count = topic.EM_UnigramCount.get(word)
 
-        for TestDataUni in TestDataUnigramList:
-            Count = topic.EM_UnigramCount.get(TestDataUni)
+            # print Count
 
             if Count != None and Count != 0:
-                # Count = (Count + Zeta)
-                # Count = np.log(Count) + np.log(topic.Expectation / 1267512)
-                Likelihood += np.log(Count + Zeta)
-                Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * Zeta)
+                Likelihood += np.log(Count + topic.Zeta)
+                Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * topic.Zeta)
             else:
-                Likelihood += np.log(1 + Zeta)
-                Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * Zeta)
+                Likelihood += np.log(1 + topic.Zeta)
+                Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * topic.Zeta)
+        # topic.dbg_DumpAllAttributeInfo()
 
         Likelihood += np.log(topic.TopicProbability)
+        Likelihood += np.log(topic.Expectation)
+        # Likelihood *= topic.Expectation
         # Likelihood *= -1
 
         if tmpL == 0.0:
@@ -239,8 +237,20 @@ def EM_Classifier(path, TopicList):
             tmpL = Likelihood
             SimilarClass = topic.Label
 
-    return SimilarClass   # return the label name of the file from test
+    for topic in TopicList:
+        if SimilarClass == topic.Label:
+            FileDict[path] = topic.TopicNumber
+            break
 
+    # return SimilarClass   # return the label name of the file from test
+
+
+
+def EM_FileList2Dic(EM_Dataset):
+    dic = {}
+    for path in EM_Dataset:
+        dic[path] = 0
+    return dic
 
 
 
@@ -264,7 +274,7 @@ def NBClassifier(path, TopicList):
 
     SimilarClass = ""
     tmpL         = 0.0
-    Zeta         = 0.2
+    Zeta         = 0.5
     for topic in TopicList:
         if topic.Label == 'Unlabel':
             continue
