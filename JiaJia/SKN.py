@@ -10,14 +10,14 @@ import numpy as np
 from collections import OrderedDict
 
 CommonWords = ['all', 'just', 'being', 'over', 'both', 'through', 'yourselves', 'its', 'before', 'herself', 'had', 'should',
-     'to', 'only', 'under', 'ours', 'has', 'do', 'them', 'his', 'very', 'they', 'not', 'during', 'now', 'him', 'nor', 'did', 
-     'this', 'she', 'each', 'further', 'where', 'few', 'because', 'doing', 'some', 'are', 'our', 'ourselves', 'out', 'what', 
-     'for', 'while', 'does', 'above', 'between', 't', 'be', 'we', 'who', 'were', 'here', 'hers', 'by', 'on', 'about', 'of', 
-     'against', 's', 'or', 'own', 'into', 'yourself', 'down', 'your', 'from', 'her', 'their', 'there', 'been', 'whom', 'too', 
-     'themselves', 'was', 'until', 'more', 'himself', 'that', 'but', 'don', 'with', 'than', 'those', 'he', 'me', 'myself', 
-     'these', 'up', 'will', 'below', 'can', 'theirs', 'my', 'and', 'then', 'is', 'am', 'it', 'an', 'as', 'itself', 'at', 'have', 
-     'in', 'any', 'if', 'again', 'no', 'when', 'same', 'how', 'other', 'which', 'you', 'after', 'most', 'such', 'why', 'a', 
-     'off', 'i', 'yours', 'so', 'the', 'having', 'once', 'article' 
+     'to', 'only', 'under', 'ours', 'has', 'do', 'them', 'his', 'very', 'they', 'not', 'during', 'now', 'him', 'nor', 'did',
+     'this', 'she', 'each', 'further', 'where', 'few', 'because', 'doing', 'some', 'are', 'our', 'ourselves', 'out', 'what',
+     'for', 'while', 'does', 'above', 'between', 't', 'be', 'we', 'who', 'were', 'here', 'hers', 'by', 'on', 'about', 'of',
+     'against', 's', 'or', 'own', 'into', 'yourself', 'down', 'your', 'from', 'her', 'their', 'there', 'been', 'whom', 'too',
+     'themselves', 'was', 'until', 'more', 'himself', 'that', 'but', 'don', 'with', 'than', 'those', 'he', 'me', 'myself',
+     'these', 'up', 'will', 'below', 'can', 'theirs', 'my', 'and', 'then', 'is', 'am', 'it', 'an', 'as', 'itself', 'at', 'have',
+     'in', 'any', 'if', 'again', 'no', 'when', 'same', 'how', 'other', 'which', 'you', 'after', 'most', 'such', 'why', 'a',
+     'off', 'i', 'yours', 'so', 'the', 'having', 'once', 'article'
     ]
 TopicDict       = {}
 Vocab           = {}
@@ -59,7 +59,7 @@ def parseVocab(path):
     UnigramList = []
     for line in Lines:
         UnigramList = getUnigrams(line)  # slice each line with some rule
-        for unigram in UnigramList:  # <--------------------    
+        for unigram in UnigramList:  # <--------------------
             if unigram.isalpha() and not unigram in CommonWords: # <--------------------
                 if not unigram in Vocab:
                     Vocab[unigram] = indexV
@@ -74,7 +74,7 @@ def parseToSklnFmt(path):
     perFileDic = {}
 
     f = open(path)
-    Lines = f.readlines()   # fully get a file's content (each line to a list) 
+    Lines = f.readlines()   # fully get a file's content (each line to a list)
     f.close()
 
     UnigramList = []
@@ -158,7 +158,7 @@ for file in FileList:
     fo.write('\n')
 fo.close()
 
-print FileList[42] 
+print FileList[42]
 f = open("./20news/Test/" + FileList[42])
 read = f.readlines()
 f.close

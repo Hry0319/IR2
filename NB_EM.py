@@ -8,7 +8,7 @@ import sqlite3
 # import scipy
 import numpy as np
 import random
-
+from collections import OrderedDict
 from optparse import OptionParser
 from Topic import TopicModel, CommonWords, vocab
 
@@ -48,7 +48,6 @@ def main():
     if reGenDB :
         TopicModel.reset()
 
-
         for path in TrainingDirList:
             topicnum        += 1
             filelist        = []
@@ -60,19 +59,6 @@ def main():
             TotalWords += topic.TopicWordsCount
             TotalFiles += topic.FileCount
             VocabSize  += len(topic.UnigramCount)
-        # #
-        # # add unlabeled data & global vocab
-        # #
-        # del filelist[:]
-        # getFileList(DataDir + 'Unlabel/', filelist)
-        # topic           = TopicModel( 'Unlabel' , 0)
-        # topic.FileCount = len(filelist)
-        # topic.CountPerUnigram(filelist)
-        # TopicList.append(topic)
-        # TotalWords += topic.TopicWordsCount
-        # TotalFiles += topic.FileCount
-        # VocabSize  += len(topic.UnigramCount)
-        # TopicList.pop()
     else:
         for path in TrainingDirList:
             topicnum        += 1
@@ -84,19 +70,7 @@ def main():
             TotalWords += topic.TopicWordsCount
             TotalFiles += topic.FileCount
             VocabSize  += len(topic.UnigramCount)
-        # #
-        # # add unlabeled data & global vocab
-        # #
-        # del filelist[:]
-        # getFileList(DataDir + 'Unlabel/', filelist)
-        # topic           = TopicModel( 'Unlabel' , 0)
-        # topic.FileCount = len(filelist)
-        # topic.SelectUnigramFromDB()
-        # TopicList.append(topic)
-        # TotalWords += topic.TopicWordsCount
-        # TotalFiles += topic.FileCount
-        # VocabSize  += len(topic.UnigramCount)
-        # TopicList.pop()
+
     # print TotalWords, TotalFiles, VocabSize
 
     #
@@ -124,7 +98,6 @@ def main():
         filelist = []
         getFileList(path, filelist)
         EM_Dataset += filelist
-
     TotalFiles      = len(EM_Dataset)
     Data_Topic_dic  = EM_FileList2Dic(EM_Dataset)
 
@@ -148,13 +121,14 @@ def main():
         # predict one time first
         for path in EM_Dataset:
             EM_Classifier(path, TopicList, Data_Topic_dic, EM_guess)
-        print Data_Topic_dic
 
-        # gen vocab for each topic
-        TopicModel.EM_CountPerUnigram_for_vocab(EM_Dataset, vocab)
-        for topic in TopicList:
-            topic.EM_UnigramCount = vocab.copy()
-            # print len(topic.EM_UnigramCount)
+        TrainingNewModel(TopicList, Data_Topic_dic, TotalWords)
+
+        # # gen vocab for each topic
+        # TopicModel.EM_CountPerUnigram_for_vocab(EM_Dataset, vocab)
+        # for topic in TopicList:
+        #     topic.EM_UnigramCount = vocab.copy()
+        #     # print len(topic.EM_UnigramCount)
 
 
         ''' ===== M step ===== '''
@@ -190,7 +164,22 @@ def main():
 
 # end ------------------------------------  Main ------------------------------------
 
+def TrainingNewModel(TopicList, Data_Topic_dic, TotalWords):
+    for  keyPath  in Data_Topic_dic:
+        for topic in TopicList:
+            if Data_Topic_dic[keyPath] == topic.TopicNumber:
+                topic.EM_FileList.append(keyPath)
 
+
+    for topic in TopicList:
+        topic.FileCount = len(topic.EM_FileList)
+        topic.EM_CountPerUnigram(topic.EM_FileList)
+        topic.TopicProbability = float(topic.TopicWordsCount) / TotalWords
+        topic.dbg_DumpAllAttributeInfo()
+
+
+
+    return
 
 def EM_Classifier(path, TopicList, FileDict, EM_guess = False):
     f = open(path)
@@ -215,20 +204,15 @@ def EM_Classifier(path, TopicList, FileDict, EM_guess = False):
             else:
                 Count = topic.EM_UnigramCount.get(word)
 
-            # print Count
-
             if Count != None and Count != 0:
                 Likelihood += np.log(Count + topic.Zeta)
                 Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * topic.Zeta)
             else:
                 Likelihood += np.log(1 + topic.Zeta)
                 Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * topic.Zeta)
-        # topic.dbg_DumpAllAttributeInfo()
 
         Likelihood += np.log(topic.TopicProbability)
         Likelihood += np.log(topic.Expectation)
-        # Likelihood *= topic.Expectation
-        # Likelihood *= -1
 
         if tmpL == 0.0:
             tmpL = Likelihood

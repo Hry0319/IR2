@@ -6,7 +6,6 @@ import gc
 import string
 import sqlite3
 import numpy as np
-from collections import OrderedDict
 
 vocab = {}
 
@@ -40,15 +39,17 @@ class TopicModel:
     UnigramCount     = {}    # dictionary : (O) OrderedDict   (X) this dictionary will transform to be a sorted List
     TopicWordsCount  = 0        # totally words count of Topic
     VocabCount       = 0
-    FileCount        = 0
+    FileCount        = 0     # per topic
     TopicProbability = 0.0
     Zeta             = 0.0
 
     EM_UnigramCount  = {}
-    EM_FileCount     = 0
+    # EM_FileCount     = 0
     EM_Lambda        = 0.0
     LogLikelihood    = 0.0
     Expectation      = 0.0
+
+    EM_FileList      = []
 
     def cal_Expectation(self, TopicList):
         numerator   = 0.0
@@ -83,6 +84,7 @@ class TopicModel:
         """
         FileList from only one Topic Folder within the file path
         """
+        self.TopicWordsCount = 0
         for file in FileList:
             f = open(file)
             Lines = f.readlines()
@@ -216,13 +218,14 @@ class TopicModel:
         self.Zeta             = 0.5
         self.UnigramCount     = {}
         self.EM_UnigramCount  = {}
-        self.EM_FileCount     = 0
+        # self.EM_FileCount     = 0
         self.EM_Lambda        = 0.0
         self.LogLikelihood    = 0.0
         self.Expectation      = 0.0
+        self.EM_FileList      = []
 
     def dbg_DumpAllAttributeInfo(self):
-        print "Label                   :  ", self.Label
+        print "===========[%s]============"%self.Label
         print "TopicNumber             :  ", self.TopicNumber
         print "TopicWordsCount         :  ", self.TopicWordsCount
         print "VocabCount              :  ", self.VocabCount
@@ -231,7 +234,10 @@ class TopicModel:
         print "Zeta                    :  ", self.Zeta
         print "UnigramCount      size  :  ", len(self.UnigramCount)
         print "EM_UnigramCount   size  :  ", len(self.EM_UnigramCount)
-        print "EM_FileCount            :  ", self.EM_FileCount
+        # print "EM_FileCount            :  ", self.EM_FileCount
         print "EM_Lambda               :  ", self.EM_Lambda
         print "LogLikelihood           :  ", self.LogLikelihood
         print "Expectation             :  ", self.Expectation
+        print "EM_FileList       size  :  ", len(self.EM_FileList)
+
+        print "\n"
