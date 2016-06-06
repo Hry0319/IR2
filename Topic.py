@@ -67,8 +67,8 @@ class TopicModel:
         LogL = 0.0
         if len(self.EM_UnigramCount) != 0:
             for key in self.EM_UnigramCount:
-                LogL += np.log(self.EM_UnigramCount[key] + self.Zeta)
-                LogL -= np.log(self.TopicWordsCount + self.VocabCount * self.Zeta)
+                LogL += np.log(self.EM_UnigramCount[key] )
+                LogL -= np.log(self.TopicWordsCount)
             # LogL += np.log(self.TopicProbability)
             self.LogLikelihood = LogL
             return LogL

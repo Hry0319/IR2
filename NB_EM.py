@@ -106,9 +106,9 @@ def main():
 
 
     #
-    # E & M
+    # ~~~~~~~~~~~E & M~~~~~~~~~~~~~
     #
-    for step in xrange(0, 20):
+    for step in xrange(0, 5):
         ''' ===== E step ===== '''
         EM_guess = False
         if (step == 0):
@@ -118,7 +118,7 @@ def main():
             L = topic.cal_LogLikelihood()
             nowL += L
 
-        if nowL > prevL:
+        if nowL < prevL:
             tmpScore = nowL
         if nowL!=0 and prevL!=0:
             if nowL - prevL >0 or (nowL / prevL) < 0.05:
@@ -171,16 +171,12 @@ def TrainingNewModel(TopicList, Data_Topic_dic, TotalWords):
             if Data_Topic_dic[keyPath] == topic.TopicNumber:
                 topic.EM_FileList.append(keyPath)
 
-
     for topic in TopicList:
         topic.EM_UnigramCount = {}
         topic.FileCount = len(topic.EM_FileList)
         topic.EM_CountPerUnigram(topic.EM_FileList)
         topic.TopicProbability = float(topic.TopicWordsCount) / TotalWords
         # topic.dbg_DumpAllAttributeInfo()
-
-
-
     return
 
 def EM_Classifier(path, TopicList, FileDict, EM_guess = False):
