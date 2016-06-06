@@ -85,6 +85,8 @@ def main():
         topic.VocabCount       = VocabSize
 
 
+    prevL = 0.0
+    nowL  = 0.0
     ##=======================================================================##
     #                            EM ALGORITHM START                           #
     ##=======================================================================##
@@ -106,7 +108,7 @@ def main():
     #
     # E & M
     #
-    for step in xrange(0, 5):
+    for step in xrange(0, 20):
         ''' ===== E step ===== '''
         EM_guess = False
         if (step == 0):
@@ -114,6 +116,14 @@ def main():
         #LogLikelihood
         for topic in TopicList:
             L = topic.cal_LogLikelihood()
+            nowL += L
+
+        if nowL > prevL:
+            tmpScore = nowL
+        if nowL!=0 and prevL!=0:
+            if nowL - prevL <0 or (nowL / prevL) < 0.05:
+                break
+
         # Expectations
         for topic in TopicList:
             topic.cal_Expectation(TopicList)   # sum = 1.0
@@ -134,9 +144,6 @@ def main():
         print 'step : ', step
 
 
-
-
-
     ##=======================================================================##
     #                            EM ALGORITHM END                             #
     ##=======================================================================##
@@ -152,7 +159,8 @@ def main():
 
     # write answer list to the output.txt
     WriteOutput(OutPutFile, AnswerList)
-    evaluation(AnswerList)
+    score = evaluation(AnswerList)
+
 
 
 # end ------------------------------------  Main ------------------------------------
@@ -306,7 +314,7 @@ def evaluation(output):
         if ans[i] == str(i+1) + ' ' + output[i] + '\n':
             score+=1.0
     print "\n!!   score : %f   !!\n" % (score / 9417)
-    return
+    return score
 
 def WriteOutput(path, oList):
     f = open(path, 'wb+')
