@@ -106,7 +106,7 @@ def main():
     #
     # E & M
     #
-    for step in xrange(0, 1):
+    for step in xrange(0, 5):
         ''' ===== E step ===== '''
         EM_guess = False
         if (step == 0):
@@ -124,18 +124,11 @@ def main():
 
         TrainingNewModel(TopicList, Data_Topic_dic, TotalWords)
 
-        # # gen vocab for each topic
-        # TopicModel.EM_CountPerUnigram_for_vocab(EM_Dataset, vocab)
-        # for topic in TopicList:
-        #     topic.EM_UnigramCount = vocab.copy()
-        #     # print len(topic.EM_UnigramCount)
-
-
         ''' ===== M step ===== '''
         for topic in TopicList:
-            # topic.EM_FileCount += topic.FileCount;
-            topic.TopicProbability = float(topic.EM_FileCount) / TotalFiles
-            topic.EM_FileCount = 0 # for next time
+            # topic.FileCount += topic.FileCount;
+            topic.TopicProbability = float(topic.FileCount)*topic.Expectation / TotalFiles
+            topic.FileCount = 0 # for next time
 
 
         print 'step : ', step
@@ -148,18 +141,18 @@ def main():
     #                            EM ALGORITHM END                             #
     ##=======================================================================##
 
-    # import re
-    # TestDataPath     = DataDir + 'Test/'
-    # TestDataFileList = []
-    # AnswerList       = []
-    # getFileList(TestDataPath, TestDataFileList)
-    # TestDataFileList = sorted(TestDataFileList, key=lambda x: (int(re.sub('\D','',x)),x))
-    # for path in TestDataFileList:    # test data path list
-    #     AnswerList.append( NBClassifier(path, TopicList) )
+    import re
+    TestDataPath     = DataDir + 'Test/'
+    TestDataFileList = []
+    AnswerList       = []
+    getFileList(TestDataPath, TestDataFileList)
+    TestDataFileList = sorted(TestDataFileList, key=lambda x: (int(re.sub('\D','',x)),x))
+    for path in TestDataFileList:    # test data path list
+        AnswerList.append( NBClassifier(path, TopicList) )
 
-    # # write answer list to the output.txt
-    # WriteOutput(OutPutFile, AnswerList)
-    # evaluation(AnswerList)
+    # write answer list to the output.txt
+    WriteOutput(OutPutFile, AnswerList)
+    evaluation(AnswerList)
 
 
 # end ------------------------------------  Main ------------------------------------
@@ -175,7 +168,7 @@ def TrainingNewModel(TopicList, Data_Topic_dic, TotalWords):
         topic.FileCount = len(topic.EM_FileList)
         topic.EM_CountPerUnigram(topic.EM_FileList)
         topic.TopicProbability = float(topic.TopicWordsCount) / TotalWords
-        topic.dbg_DumpAllAttributeInfo()
+        # topic.dbg_DumpAllAttributeInfo()
 
 
 
@@ -266,7 +259,7 @@ def NBClassifier(path, TopicList):
         Likelihood = 0.0
 
         for TestDataUni in TestDataUnigramList:
-            Count = topic.UnigramCount.get(TestDataUni)
+            Count = topic.EM_UnigramCount.get(TestDataUni)
 
             if Count != None and Count != 0:
                 Likelihood += np.log(Count + Zeta)
