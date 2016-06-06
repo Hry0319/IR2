@@ -6,7 +6,7 @@ import gc
 import string
 import sqlite3
 # import scipy
-import numpy as np 
+import numpy as np
 import random
 
 from optparse import OptionParser
@@ -14,12 +14,12 @@ from Topic import TopicModel, CommonWords, vocab
 
 reGenDB = 0
 
-# ------------------------------------  Main ------------------------------------ start
-def main():  
+# start ------------------------------------  Main ------------------------------------
+def main():
 
     #
     # terminal option parser
-    #  
+    #
     DataDir             = "./20news/"
     OutPutFile          = "./output.txt"
     Labeled_Data_Size   = ""
@@ -40,64 +40,64 @@ def main():
 
     getDirList(DataDir + 'Train/', TrainingDirList)
 
-    # 
-    # parse to DB or Select from DB  
+    #
+    # parse to DB or Select from DB
     # IF YOU RUN THIS FIRST TIME , BE SURE YOUR SQL TABLE IS GENERATED BEFORE IT
-    # 
+    #
+    topicnum = 0
     if reGenDB :
         TopicModel.reset()
 
 
         for path in TrainingDirList:
+            topicnum        += 1
             filelist        = []
             getFileList(path, filelist)
-            topic           = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
+            topic           = TopicModel( path[ len(DataDir + 'Train'): ].strip('/'), topicnum)
             topic.FileCount = len(filelist)
-            topic.CalProbPerUnigram(filelist)
+            topic.CountPerUnigram(filelist)
             TopicList.append(topic)
             TotalWords += topic.TopicWordsCount
             TotalFiles += topic.FileCount
             VocabSize  += len(topic.UnigramCount)
-        #
-        # add unlabeled data & global vocab
-        #
-        del filelist[:]
-        getFileList(DataDir + 'Unlabel/', filelist)
-        topic           = TopicModel( 'Unlabel' )
-        topic.FileCount = len(filelist)
-        topic.CalProbPerUnigram(filelist)
-        TopicList.append(topic)
-        TotalWords += topic.TopicWordsCount
-        TotalFiles += topic.FileCount
-        VocabSize  += len(topic.UnigramCount)
-        TopicList.pop()
+        # #
+        # # add unlabeled data & global vocab
+        # #
+        # del filelist[:]
+        # getFileList(DataDir + 'Unlabel/', filelist)
+        # topic           = TopicModel( 'Unlabel' , 0)
+        # topic.FileCount = len(filelist)
+        # topic.CountPerUnigram(filelist)
+        # TopicList.append(topic)
+        # TotalWords += topic.TopicWordsCount
+        # TotalFiles += topic.FileCount
+        # VocabSize  += len(topic.UnigramCount)
+        # TopicList.pop()
     else:
         for path in TrainingDirList:
+            topicnum        += 1
             filelist        = []
             getFileList(path, filelist)
-            topic           = TopicModel( path[ len(DataDir + 'Train'): ].strip('/') )
-            topic.FileCount = len(filelist)
+            topic           = TopicModel( path[ len(DataDir + 'Train'): ].strip('/'), topicnum)
             topic.SelectUnigramFromDB()
             TopicList.append(topic)
             TotalWords += topic.TopicWordsCount
             TotalFiles += topic.FileCount
             VocabSize  += len(topic.UnigramCount)
-        #
-        # add unlabeled data & global vocab
-        #
-        del filelist[:]
-        getFileList(DataDir + 'Unlabel/', filelist)
-        topic           = TopicModel( 'Unlabel' )
-        topic.FileCount = len(filelist)
-        topic.SelectUnigramFromDB()
-        TopicList.append(topic)
-        TotalWords += topic.TopicWordsCount
-        TotalFiles += topic.FileCount
-        VocabSize  += len(topic.UnigramCount)
-        TopicList.pop()
+        # #
+        # # add unlabeled data & global vocab
+        # #
+        # del filelist[:]
+        # getFileList(DataDir + 'Unlabel/', filelist)
+        # topic           = TopicModel( 'Unlabel' , 0)
+        # topic.FileCount = len(filelist)
+        # topic.SelectUnigramFromDB()
+        # TopicList.append(topic)
+        # TotalWords += topic.TopicWordsCount
+        # TotalFiles += topic.FileCount
+        # VocabSize  += len(topic.UnigramCount)
+        # TopicList.pop()
     # print TotalWords, TotalFiles, VocabSize
-    print len(vocab)  #79204
-
 
     #
     #  Cal each Topics' Probability     ( sum of these Probability is 1.0 )
@@ -105,19 +105,18 @@ def main():
     filecounts = 0
     vocabCounts = 0
     for topic in TopicList:
-        topic.TopicProbability = float(topic.FileCount) / TotalFiles
-        topic.VocabCount       = VocabSize
-        # topic.TopicProbability = float(topic.TopicWordsCount) / TotalWords
+        # topic.TopicProbability = float(topic.FileCount) / TotalFiles
         # topic.VocabCount       = VocabSize
-
+        topic.TopicProbability = float(topic.TopicWordsCount) / TotalWords
+        topic.VocabCount       = VocabSize
 
 
     ##=======================================================================##
     #                            EM ALGORITHM START                           #
     ##=======================================================================##
-
+    Data_Topic_dic = {}
     #
-    # Data set
+    # Data set     // unlabeled + labeled
     #
     EM_Dataset = []
     getFileList(DataDir + 'Unlabel/', EM_Dataset)  # not sorted
@@ -126,117 +125,124 @@ def main():
         getFileList(path, filelist)
         EM_Dataset += filelist
     TotalFiles = len(EM_Dataset)
+    Data_Topic_dic = EM_FileList2Dic(EM_Dataset)
+    print len(Data_Topic_dic)
+    TopicModel.EM_CountPerUnigram_for_vocab(EM_Dataset, vocab)
 
 
-    for step in xrange(0, 5)
+
+    for topic in TopicList:
+        # topic.EM_CountPerUnigram(EM_Dataset)？
+        topic.EM_UnigramCount = vocab.copy()
+        print len(topic.EM_UnigramCount)
+
+
+    for step in xrange(0, 1):
         '''E step'''
-        # Expectations
+        #LogLikelihood
         for topic in TopicList:
             L = topic.cal_LogLikelihood()
-            # print topic.LogLikelihood
+        # Expectations
         for topic in TopicList:
-            topic.cal_Expectation(TopicList)   # sum = 1.0 if use divide
-            
-
-    
-
-        '''M step'''
-        topic.EM_Lambda = topic.Expectation
-
-        theta = 0.0
-
-        for doc in EM_Dataset:
-            
+            topic.cal_Expectation(TopicList)   # sum = 1.0
 
 
-    # Lambda = 0.0
-    # for topic in TopicList:
-    #     for doc in EM_Dataset:
-    #         EM_cal_Lambda(doc, TopicList)
-    #     print topic.EM_Lambda
+    #     '''M step'''
+    #     if step % 2 == 0:
+    #         for topic in TopicList:
+    #             topic.EM_Lambda = topic.Expectation
+
+    #     else:
+    #         for topic in TopicList:
+    #             EM_cal_Theta(EM_Dataset, topic, TopicList)
+    #             print len(topic.EM_UnigramCount)
+
+    #     print 'step : ', step
 
 
-    
+
 
 
     ##=======================================================================##
     #                            EM ALGORITHM END                             #
     ##=======================================================================##
 
+    # import re
+    # TestDataPath     = DataDir + 'Test/'
+    # TestDataFileList = []
+    # AnswerList       = []
+    # getFileList(TestDataPath, TestDataFileList)
+    # TestDataFileList = sorted(TestDataFileList, key=lambda x: (int(re.sub('\D','',x)),x))
+    # for path in TestDataFileList:    # test data path list
+    #     AnswerList.append( NBClassifier(path, TopicList) )
+
+    # # write answer list to the output.txt
+    # WriteOutput(OutPutFile, AnswerList)
+    # evaluation(AnswerList)
 
 
-    import re
-    TestDataPath     = DataDir + 'Test/'
-    TestDataFileList = []
-    AnswerList       = []
-    getFileList(TestDataPath, TestDataFileList)
-    TestDataFileList = sorted(TestDataFileList, key=lambda x: (int(re.sub('\D','',x)),x))
-    for path in TestDataFileList:    # test data path list
-        AnswerList.append( NBClassifier(path, TopicList) )
+# end ------------------------------------  Main ------------------------------------
 
-    # write answer list to the output.txt    
-    WriteOutput(OutPutFile, AnswerList)
-    evaluation(AnswerList)
-# ------------------------------------  Main ------------------------------------ end
 
-def EM_cal_Theta(path, TopicList):  #look like funtcion Classifier
+def EM_FileList2Dic(FileList):
+    dic = {}
+    for path in FileList:
+        dic[path] = 0
+    return dic
+
+def EM_Classifier(path, TopicList):
     global vocab
 
     f = open(path)
     Lines = f.readlines()
     f.close()
-    EM_UnigramList = []
+
+    TestDataUnigramList = []
+
     for line in Lines:
         tmpList = TopicModel.getUnigrams(line)
         for Unigram in tmpList:
             if Unigram.isalpha() and Unigram not in CommonWords:
                 # print Unigram
-                EM_UnigramList.append(Unigram)
-    Xij     = len(EM_UnigramList)
-    Lambda  = 0.0
+                TestDataUnigramList.append(Unigram)
+    # print TestDataUnigramList , len(TestDataUnigramList)
+
+
+    SimilarClass = ""
+    tmpL         = 0.0
+    Zeta         = 0.5
     for topic in TopicList:
         if topic.Label == 'Unlabel':
             continue
-        Lambda = (topic.Expectation * Xij) / (topic.Expectation * topic.TopicWordsCount)
-        # print Lambda
-        topic.EM_Lambda += Lambda
+        topic.Zeta = Zeta
+        Likelihood = 0.0
 
-def EM_cal_Lambda(path, TopicList):  #look like funtcion Classifier
-    global vocab
+        for TestDataUni in TestDataUnigramList:
+            Count = topic.EM_UnigramCount.get(TestDataUni)
 
-    f = open(path)
-    Lines = f.readlines()
-    f.close()
-    EM_UnigramList = []
-    for line in Lines:
-        tmpList = TopicModel.getUnigrams(line)
-        for Unigram in tmpList:
-            if Unigram.isalpha() and Unigram not in CommonWords:
-                # print Unigram
-                EM_UnigramList.append(Unigram)
-    Xij     = len(EM_UnigramList)
-    Lambda  = 0.0
-    for topic in TopicList:
-        if topic.Label == 'Unlabel':
-            continue
-        Lambda = (topic.Expectation * Xij) / (topic.Expectation * topic.TopicWordsCount)
-        # print Lambda
-        topic.EM_Lambda += Lambda
+            if Count != None and Count != 0:
+                # Count = (Count + Zeta)
+                # Count = np.log(Count) + np.log(topic.Expectation / 1267512)
+                Likelihood += np.log(Count + Zeta)
+                Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * Zeta)
+            else:
+                Likelihood += np.log(1 + Zeta)
+                Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * Zeta)
 
+        Likelihood += np.log(topic.TopicProbability)
+        # Likelihood *= -1
 
+        if tmpL == 0.0:
+            tmpL = Likelihood
+            SimilarClass = topic.Label
+        elif Likelihood > tmpL:
+            tmpL = Likelihood
+            SimilarClass = topic.Label
 
+    return SimilarClass   # return the label name of the file from test
 
 
-# def LambdaLogLikelihoodRange(Topics, outLikelihoodList):
-#     del outLikelihoodList[:]
-#     Sum = 0
-#     for topic in Topics:
-#         L = topic.cal_LogLikelihood()
-#         if L != None:
-#             Sum += L
-#             outLikelihoodList.append(L)
-#             #?? Accumulation
-#     return Sum
+
 
 def NBClassifier(path, TopicList):
     global vocab
@@ -265,20 +271,19 @@ def NBClassifier(path, TopicList):
         topic.Zeta = Zeta
         Likelihood = 0.0
 
-        for TestDataUni in TestDataUnigramList: 
+        for TestDataUni in TestDataUnigramList:
             Count = topic.UnigramCount.get(TestDataUni)
-            inVocab = vocab.get(TestDataUni)
 
             if Count != None and Count != 0:
                 Likelihood += np.log(Count + Zeta)
                 Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * Zeta)
-            else:                
+            else:
                 Likelihood += np.log(1 + Zeta)
                 Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * Zeta)
 
         Likelihood += np.log(topic.TopicProbability)
         # Likelihood *= -1
-        
+
         if tmpL == 0.0:
             tmpL = Likelihood
             SimilarClass = topic.Label
@@ -317,7 +322,7 @@ def evaluation(output):
     return
 
 def WriteOutput(path, oList):
-    f = open(path, 'wb+')    
+    f = open(path, 'wb+')
     f.seek(0)
     count = 0
     for _class in oList:
@@ -329,30 +334,7 @@ def WriteOutput(path, oList):
     f.close()
     return
 
-
-# class enumTopic:
-#     alt.atheism,
-#     comp.graphics,
-#     comp.os.ms-windows.misc,
-#     comp.sys.ibm.pc.hardware,
-#     comp.sys.mac.hardware
-#     comp.windows.x
-#     misc.forsale
-#     rec.autos
-#     rec.motorcycles
-#     rec.sport.baseball
-#     rec.sport.hockey
-#     sci.crypt
-#     sci.electronics
-#     sci.med
-#     sci.space
-#     soc.religion.christian
-#     talk.politics.guns
-#     talk.politics.mideast
-#     talk.politics.misc
-#     talk.religion.misc
-
 # main()
 if __name__ == '__main__':
     main()
-    
+
