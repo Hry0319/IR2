@@ -173,6 +173,7 @@ def TrainingNewModel(TopicList, Data_Topic_dic, TotalWords):
 
 
     for topic in TopicList:
+        topic.EM_UnigramCount = {}
         topic.FileCount = len(topic.EM_FileList)
         topic.EM_CountPerUnigram(topic.EM_FileList)
         topic.TopicProbability = float(topic.TopicWordsCount) / TotalWords
@@ -311,7 +312,7 @@ def evaluation(output):
     f.close()
 
     for i in xrange(0, len(output)):
-        if ans[i] == str(i+1) + ' ' + output[i] + '\n':
+        if ans[i].strip() == str(i+1) + ' ' + output[i].strip():
             score+=1.0
     print "\n!!   score : %f   !!\n" % (score / 9417)
     return score
