@@ -12,7 +12,7 @@ from collections import OrderedDict
 from optparse import OptionParser
 from Topic import TopicModel, CommonWords, vocab
 
-reGenDB = 0
+reGenDB = 1
 
 # start ------------------------------------  Main ------------------------------------
 def main():
