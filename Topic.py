@@ -141,13 +141,13 @@ class TopicModel:
                         #
                         # TopicModel.setVocab(Unigram, 1.0)
 
-        c = self.conn.cursor()
-        for unigram in self.UnigramCount:
-            prob = 0
-            sqlcmd = "INSERT INTO Topic VALUES(%s, %s, %f, %d)" % ('\''+self.Label+'\'', '\''+unigram+'\'', prob, self.UnigramCount[unigram])
-            c.execute(sqlcmd)
-        c.close()
-        self.conn.commit()
+        # c = self.conn.cursor()
+        # for unigram in self.UnigramCount:
+        #     prob = 0
+        #     sqlcmd = "INSERT INTO Topic VALUES(%s, %s, %f, %d)" % ('\''+self.Label+'\'', '\''+unigram+'\'', prob, self.UnigramCount[unigram])
+        #     c.execute(sqlcmd)
+        # c.close()
+        # self.conn.commit()
 
     def SQL_SUM(self):
         # get TopicWordsCountfrom DB
@@ -208,7 +208,7 @@ class TopicModel:
         return TopicWordsCount
 
     def __init__(self, label, TopicNum):
-        self.conn             = sqlite3.connect('./Topic.db')
+        # self.conn             = sqlite3.connect('./Topic.db')
         self.Label            = label
         self.TopicNumber      = TopicNum
         self.TopicWordsCount  = 0

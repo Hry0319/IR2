@@ -12,7 +12,6 @@ from collections import OrderedDict
 from optparse import OptionParser
 from Topic import TopicModel, CommonWords, vocab
 
-reGenDB = 1
 
 # start ------------------------------------  Main ------------------------------------
 def main():
@@ -45,31 +44,31 @@ def main():
     # IF YOU RUN THIS FIRST TIME , BE SURE YOUR SQL TABLE IS GENERATED BEFORE IT
     #
     topicnum = 0
-    if reGenDB :
-        TopicModel.reset()
+    # if reGenDB :
+    #     TopicModel.reset()
 
-        for path in TrainingDirList:
-            topicnum        += 1
-            filelist        = []
-            getFileList(path, filelist)
-            topic           = TopicModel( path[ len(DataDir + 'Train'): ].strip('/'), topicnum)
-            topic.FileCount = len(filelist)
-            topic.CountPerUnigram(filelist)
-            TopicList.append(topic)
-            TotalWords += topic.TopicWordsCount
-            TotalFiles += topic.FileCount
-            VocabSize  += len(topic.UnigramCount)
-    else:
-        for path in TrainingDirList:
-            topicnum        += 1
-            filelist        = []
-            getFileList(path, filelist)
-            topic           = TopicModel( path[ len(DataDir + 'Train'): ].strip('/'), topicnum)
-            topic.SelectUnigramFromDB()
-            TopicList.append(topic)
-            TotalWords += topic.TopicWordsCount
-            TotalFiles += topic.FileCount
-            VocabSize  += len(topic.UnigramCount)
+    for path in TrainingDirList:
+        topicnum        += 1
+        filelist        = []
+        getFileList(path, filelist)
+        topic           = TopicModel( path[ len(DataDir + 'Train'): ].strip('/'), topicnum)
+        topic.FileCount = len(filelist)
+        topic.CountPerUnigram(filelist)
+        TopicList.append(topic)
+        TotalWords += topic.TopicWordsCount
+        TotalFiles += topic.FileCount
+        VocabSize  += len(topic.UnigramCount)
+    # else:
+    #     for path in TrainingDirList:
+    #         topicnum        += 1
+    #         filelist        = []
+    #         getFileList(path, filelist)
+    #         topic           = TopicModel( path[ len(DataDir + 'Train'): ].strip('/'), topicnum)
+    #         topic.SelectUnigramFromDB()
+    #         TopicList.append(topic)
+    #         TotalWords += topic.TopicWordsCount
+    #         TotalFiles += topic.FileCount
+    #         VocabSize  += len(topic.UnigramCount)
 
     # print TotalWords, TotalFiles, VocabSize
 
@@ -108,21 +107,18 @@ def main():
     #
     # ~~~~~~~~~~~E & M~~~~~~~~~~~~~
     #
-    for step in xrange(0, 5):
-        ''' ===== E step ===== '''
+    for step in xrange(0, 2):
+        nowL = 0
+        '''   E step   '''
         EM_guess = False
         if (step == 0):
             EM_guess = True
+
         #LogLikelihood
         for topic in TopicList:
             L = topic.cal_LogLikelihood()
             nowL += L
 
-        if nowL < prevL:
-            tmpScore = nowL
-        if nowL!=0 and prevL!=0:
-            if nowL - prevL >0 or (nowL / prevL) < 0.05:
-                break
 
         # Expectations
         for topic in TopicList:
@@ -132,35 +128,42 @@ def main():
         for path in EM_Dataset:
             EM_Classifier(path, TopicList, Data_Topic_dic, EM_guess)
 
-        TrainingNewModel(TopicList, Data_Topic_dic, TotalWords)
-
-        ''' ===== M step ===== '''
+        '''   M step   '''
         for topic in TopicList:
             # topic.FileCount += topic.FileCount;
             topic.TopicProbability = float(topic.FileCount)*topic.Expectation / TotalFiles
             topic.FileCount = 0 # for next time
 
+        TrainingNewModel(TopicList, Data_Topic_dic, TotalWords)
 
-        print 'step : ', step, '      Likelihood sum : ', nowL
+        print 'step : ', step , '      Likelihood sum : ', nowL   , ' growup % : ',(nowL / prevL)
 
 
     ##=======================================================================##
     #                            EM ALGORITHM END                             #
     ##=======================================================================##
+        if step % 10 != 0:
+            continue
 
-    import re
-    TestDataPath     = DataDir + 'Test/'
-    TestDataFileList = []
-    AnswerList       = []
-    getFileList(TestDataPath, TestDataFileList)
-    TestDataFileList = sorted(TestDataFileList, key=lambda x: (int(re.sub('\D','',x)),x))
-    for path in TestDataFileList:    # test data path list
-        AnswerList.append( NBClassifier(path, TopicList) )
+        import re
+        TestDataPath     = DataDir + 'Test/'
+        TestDataFileList = []
+        AnswerList       = []
+        getFileList(TestDataPath, TestDataFileList)
+        TestDataFileList = sorted(TestDataFileList, key=lambda x: (int(re.sub('\D','',x)),x))
+        for path in TestDataFileList:    # test data path list
+            AnswerList.append( NBClassifier(path, TopicList) )
 
-    # write answer list to the output.txt
-    WriteOutput(OutPutFile, AnswerList)
-    score = evaluation(AnswerList)
+        # write answer list to the output.txt
+        WriteOutput(OutPutFile, AnswerList)
+        score = evaluation(AnswerList)
 
+
+        if nowL < prevL:
+            tmpScore = nowL
+        if nowL!=0 and prevL!=0:
+            if nowL - prevL >0 or (nowL / prevL) < 0.05:
+                break
 
 
 # end ------------------------------------  Main ------------------------------------
@@ -203,11 +206,11 @@ def EM_Classifier(path, TopicList, FileDict, EM_guess = False):
                 Count = topic.EM_UnigramCount.get(word)
 
             if Count != None and Count != 0:
-                Likelihood += np.log(Count + topic.Zeta)
-                Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * topic.Zeta)
+                Likelihood += np.log(Count)
+                Likelihood -= np.log(topic.TopicWordsCount)
             else:
                 Likelihood += np.log(1 + topic.Zeta)
-                Likelihood -= np.log(topic.TopicWordsCount + topic.VocabCount * topic.Zeta)
+                Likelihood -= np.log(topic.TopicWordsCount)
 
         Likelihood += np.log(topic.TopicProbability)
         Likelihood += np.log(topic.Expectation)
